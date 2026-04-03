@@ -15,7 +15,8 @@ interface ChartsProps {
 export function Charts({ yearly }: ChartsProps) {
   const c = Colors[useScheme()];
   const styles = makeStyles(c);
-  const chartWidth = Math.min(Dimensions.get('window').width - 60, 700);
+  const yAxisWidth = 52;
+  const chartWidth = Math.min(Dimensions.get('window').width - 60, 700) - yAxisWidth;
 
   const lineData = useMemo(
     () =>
@@ -49,7 +50,10 @@ export function Charts({ yearly }: ChartsProps) {
           { value: Math.round(r.totalPrincipal), color: c.chartPrincipal },
           { value: Math.round(r.totalInterest), color: c.chartInterest },
         ],
-        label: String(r.year),
+        label:
+          r.year % 5 === 0 || r.year === 1 || r.year === yearly[yearly.length - 1]?.year
+            ? String(r.year)
+            : '',
       })),
     [yearly, c]
   );
@@ -63,6 +67,7 @@ export function Charts({ yearly }: ChartsProps) {
           data={lineData}
           width={chartWidth}
           height={180}
+          yAxisLabelWidth={yAxisWidth}
           color={c.chartPrimary}
           thickness={2}
           startFillColor={c.chartPrimary}
@@ -106,6 +111,7 @@ export function Charts({ yearly }: ChartsProps) {
           stackData={stackData}
           width={chartWidth}
           height={180}
+          yAxisLabelWidth={yAxisWidth}
           barWidth={Math.max(8, Math.floor((chartWidth / yearly.length) * 0.6))}
           xAxisColor={c.border}
           yAxisColor={c.border}
@@ -117,6 +123,7 @@ export function Charts({ yearly }: ChartsProps) {
           rulesType="solid"
           initialSpacing={10}
           barBorderRadius={2}
+          labelsExtraHeight={16}
           formatYLabel={(v: string) => `${Math.round(Number(v) / 1000)} tis.`}
         />
       </View>
