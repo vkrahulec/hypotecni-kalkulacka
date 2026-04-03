@@ -109,6 +109,7 @@ export function CalculatorScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
+  const [showCharts, setShowCharts] = useState(true);
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -417,10 +418,24 @@ export function CalculatorScreen() {
               </View>
 
               {/* Charts */}
-              <View style={[styles.card, { backgroundColor: c.surface }]}>
-                <SectionHeader title="Grafy" />
-                <Charts yearly={result.yearlyAmortizationTable} />
-              </View>
+              <TouchableOpacity
+                onPress={() => setShowCharts((v) => !v)}
+                style={[styles.optionalToggle, { backgroundColor: c.surfaceContainer, borderColor: c.border }]}
+                activeOpacity={0.75}
+              >
+                <Text style={[styles.optionalToggleIcon, { color: c.primary }]}>
+                  {showCharts ? '▲' : '▼'}
+                </Text>
+                <Text style={[styles.optionalToggleText, { color: c.primary }]}>
+                  {showCharts ? 'Skrýt grafy' : 'Zobrazit grafy'}
+                </Text>
+              </TouchableOpacity>
+
+              {showCharts && (
+                <View style={[styles.card, { backgroundColor: c.surface }]}>
+                  <Charts yearly={result.yearlyAmortizationTable} />
+                </View>
+              )}
 
               {/* Amortization table */}
               <View style={[styles.card, { backgroundColor: c.surface }]}>
