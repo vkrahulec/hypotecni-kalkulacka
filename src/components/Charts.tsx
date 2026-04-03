@@ -1,12 +1,72 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
+import { LineChart, PieChart } from 'react-native-gifted-charts';
+import Svg, { Polygon, Line as SvgLine, Text as SvgText } from 'react-native-svg';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
 import { useScheme } from '../context/ThemeContext';
 
 // Native-only Charts (Android / iOS).
 // On web the bundler picks Charts.web.tsx — this file is never bundled for web.
+
+interface StackedAreaProps {
+  data: { year: number; principal: number; interest: number }[];
+  svgWidth: number;
+  svgHeight: number;
+  plotHeight: number;
+  yAxisWidth: number;
+  colors: { principal: string; interest: string };
+  textColor: string;
+  borderColor: string;
+}
+
+function StackedAreaChart({ data, svgWidth, svgHeight, plotHeight, yAxisWidth, colors, textColor, borderColor }: StackedAreaProps) {
+  const n = data.length;
+  if (n === 0) return null;
+  const plotWidth = svgWidth - yAxisWidth;
+  const maxVal = Math.max(...data.map((d) => d.principal + d.interest), 1);
+  const xScale = (i: number) => yAxisWidth + (n > 1 ? (i / (n - 1)) * plotWidth : plotWidth / 2);
+  const yScale = (v: number) => plotHeight - (v / maxVal) * plotHeight;
+
+  const principalPts = [
+    ...data.map((d, i) => `${xScale(i)},${yScale(d.principal)}`),
+    `${xScale(n - 1)},${plotHeight}`,
+    `${xScale(0)},${plotHeight}`,
+  ].join(' ');
+
+  const interestPts = [
+    ...data.map((d, i) => `${xScale(i)},${yScale(d.principal + d.interest)}`),
+    ...[...data].reverse().map((d, i) => `${xScale(n - 1 - i)},${yScale(d.principal)}`),
+  ].join(' ');
+
+  const gridValues = [0.25, 0.5, 0.75, 1].map((p) => ({ v: maxVal * p, y: yScale(maxVal * p) }));
+  const xLabels = data.filter((d, i) => d.year % 5 === 0 || i === 0 || i === n - 1);
+
+  return (
+    <Svg width={svgWidth} height={svgHeight}>
+      {gridValues.map(({ y }, i) => (
+        <SvgLine key={i} x1={yAxisWidth} y1={y} x2={svgWidth} y2={y} stroke={borderColor} strokeWidth={0.5} />
+      ))}
+      <Polygon points={principalPts} fill={colors.principal} opacity={0.85} />
+      <Polygon points={interestPts} fill={colors.interest} opacity={0.85} />
+      <SvgLine x1={yAxisWidth} y1={plotHeight} x2={svgWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      <SvgLine x1={yAxisWidth} y1={0} x2={yAxisWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      {gridValues.map(({ v, y }) => (
+        <SvgText key={v} x={yAxisWidth - 4} y={y + 4} textAnchor="end" fontSize={9} fill={textColor}>
+          {`${Math.round(v / 1000)}k`}
+        </SvgText>
+      ))}
+      {xLabels.map((d) => {
+        const i = data.indexOf(d);
+        return (
+          <SvgText key={d.year} x={xScale(i)} y={plotHeight + 13} textAnchor="middle" fontSize={9} fill={textColor}>
+            {String(d.year)}
+          </SvgText>
+        );
+      })}
+    </Svg>
+  );
+}
 
 interface ChartsProps {
   yearly: YearlyAmortizationRow[];
@@ -43,19 +103,13 @@ export function Charts({ yearly }: ChartsProps) {
     [totalPrincipal, totalInterest, c]
   );
 
-  const stackData = useMemo(
-    () =>
-      yearly.map((r) => ({
-        stacks: [
-          { value: Math.round(r.totalPrincipal), color: c.chartPrincipal },
-          { value: Math.round(r.totalInterest), color: c.chartInterest },
-        ],
-        label:
-          r.year % 5 === 0 || r.year === 1 || r.year === yearly[yearly.length - 1]?.year
-            ? String(r.year)
-            : '',
-      })),
-    [yearly, c]
+  const totalSvgWidth = chartWidth + yAxisWidth;
+  const svgPlotH = 180;
+  const svgH = svgPlotH + 18; // +18 for x-axis labels
+
+  const areaData = useMemo(
+    () => yearly.map((r) => ({ year: r.year, principal: r.totalPrincipal, interest: r.totalInterest })),
+    [yearly]
   );
 
   return (
@@ -94,7 +148,7 @@ export function Charts({ yearly }: ChartsProps) {
         />
       </View>
 
-      {/* Stacked bar chart: principal vs interest per year */}
+      {/* Stacked area chart: principal vs interest per year */}
       <View style={[styles.chartCard, { marginTop: 8 }]}>
         <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Jistina vs. úrok ročně</Text>
         <View style={styles.legend}>
@@ -107,24 +161,15 @@ export function Charts({ yearly }: ChartsProps) {
             <Text style={[styles.legendText, { color: c.textSecondary }]}>Úrok</Text>
           </View>
         </View>
-        <BarChart
-          stackData={stackData}
-          width={chartWidth}
-          height={180}
-          yAxisLabelWidth={yAxisWidth}
-          barWidth={Math.max(8, Math.floor((chartWidth / yearly.length) * 0.6))}
-          xAxisColor={c.border}
-          yAxisColor={c.border}
-          yAxisTextStyle={{ color: c.textSecondary, fontSize: 10 }}
-          xAxisLabelTextStyle={{ color: c.textSecondary, fontSize: 10 }}
-          noOfSections={4}
-          backgroundColor={c.surfaceContainer}
-          rulesColor={c.border}
-          rulesType="solid"
-          initialSpacing={10}
-          barBorderRadius={2}
-          labelsExtraHeight={16}
-          formatYLabel={(v: string) => `${Math.round(Number(v) / 1000)} tis.`}
+        <StackedAreaChart
+          data={areaData}
+          svgWidth={totalSvgWidth}
+          svgHeight={svgH}
+          plotHeight={svgPlotH}
+          yAxisWidth={yAxisWidth}
+          colors={{ principal: c.chartPrincipal, interest: c.chartInterest }}
+          textColor={c.textSecondary}
+          borderColor={c.border}
         />
       </View>
       {/* Pie chart: principal vs interest totals */}

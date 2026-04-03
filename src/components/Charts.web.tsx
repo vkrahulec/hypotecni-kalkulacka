@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Path, Text as SvgText } from 'react-native-svg';
+import Svg, { Path, Polygon, Line as SvgLine, Text as SvgText } from 'react-native-svg';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
 import { useScheme } from '../context/ThemeContext';
@@ -28,6 +28,104 @@ function describeDonutSegment(
   ].join(' ');
 }
 
+function StackedAreaChart({ data, svgWidth, svgHeight, plotHeight, yAxisWidth, colors, textColor, borderColor }: {
+  data: { year: number; principal: number; interest: number }[];
+  svgWidth: number; svgHeight: number; plotHeight: number; yAxisWidth: number;
+  colors: { principal: string; interest: string }; textColor: string; borderColor: string;
+}) {
+  const n = data.length;
+  if (n === 0) return null;
+  const plotWidth = svgWidth - yAxisWidth;
+  const maxVal = Math.max(...data.map((d) => d.principal + d.interest), 1);
+  const xScale = (i: number) => yAxisWidth + (n > 1 ? (i / (n - 1)) * plotWidth : plotWidth / 2);
+  const yScale = (v: number) => plotHeight - (v / maxVal) * plotHeight;
+
+  const principalPts = [
+    ...data.map((d, i) => `${xScale(i)},${yScale(d.principal)}`),
+    `${xScale(n - 1)},${plotHeight}`, `${xScale(0)},${plotHeight}`,
+  ].join(' ');
+
+  const interestPts = [
+    ...data.map((d, i) => `${xScale(i)},${yScale(d.principal + d.interest)}`),
+    ...[...data].reverse().map((d, i) => `${xScale(n - 1 - i)},${yScale(d.principal)}`),
+  ].join(' ');
+
+  const gridValues = [0.25, 0.5, 0.75, 1].map((p) => ({ v: maxVal * p, y: yScale(maxVal * p) }));
+  const xLabels = data.filter((d, i) => d.year % 5 === 0 || i === 0 || i === n - 1);
+
+  return (
+    <Svg width={svgWidth} height={svgHeight}>
+      {gridValues.map(({ y }, i) => (
+        <SvgLine key={i} x1={yAxisWidth} y1={y} x2={svgWidth} y2={y} stroke={borderColor} strokeWidth={0.5} />
+      ))}
+      <Polygon points={principalPts} fill={colors.principal} opacity={0.85} />
+      <Polygon points={interestPts} fill={colors.interest} opacity={0.85} />
+      <SvgLine x1={yAxisWidth} y1={plotHeight} x2={svgWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      <SvgLine x1={yAxisWidth} y1={0} x2={yAxisWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      {gridValues.map(({ v, y }) => (
+        <SvgText key={v} x={yAxisWidth - 4} y={y + 4} textAnchor="end" fontSize={9} fill={textColor}>
+          {`${Math.round(v / 1000)}k`}
+        </SvgText>
+      ))}
+      {xLabels.map((d) => {
+        const i = data.indexOf(d);
+        return (
+          <SvgText key={d.year} x={xScale(i)} y={plotHeight + 13} textAnchor="middle" fontSize={9} fill={textColor}>
+            {String(d.year)}
+          </SvgText>
+        );
+      })}
+    </Svg>
+  );
+}
+
+function LineAreaChart({ data, svgWidth, svgHeight, plotHeight, yAxisWidth, color, textColor, borderColor }: {
+  data: { year: number; value: number }[];
+  svgWidth: number; svgHeight: number; plotHeight: number; yAxisWidth: number;
+  color: string; textColor: string; borderColor: string;
+}) {
+  const n = data.length;
+  if (n === 0) return null;
+  const plotWidth = svgWidth - yAxisWidth;
+  const maxVal = Math.max(...data.map((d) => d.value), 1);
+  const xScale = (i: number) => yAxisWidth + (n > 1 ? (i / (n - 1)) * plotWidth : plotWidth / 2);
+  const yScale = (v: number) => plotHeight - (v / maxVal) * plotHeight;
+
+  const linePts = data.map((d, i) => `${xScale(i)},${yScale(d.value)}`).join(' ');
+  const areaPts = [
+    ...data.map((d, i) => `${xScale(i)},${yScale(d.value)}`),
+    `${xScale(n - 1)},${plotHeight}`, `${xScale(0)},${plotHeight}`,
+  ].join(' ');
+
+  const gridValues = [0.25, 0.5, 0.75, 1].map((p) => ({ v: maxVal * p, y: yScale(maxVal * p) }));
+  const xLabels = data.filter((d, i) => d.year % 5 === 0 || i === 0 || i === n - 1);
+
+  return (
+    <Svg width={svgWidth} height={svgHeight}>
+      {gridValues.map(({ y }, i) => (
+        <SvgLine key={i} x1={yAxisWidth} y1={y} x2={svgWidth} y2={y} stroke={borderColor} strokeWidth={0.5} />
+      ))}
+      <Polygon points={areaPts} fill={color} opacity={0.15} />
+      <Path d={`M ${linePts.replace(/ /g, ' L ')}`} fill="none" stroke={color} strokeWidth={2} />
+      <SvgLine x1={yAxisWidth} y1={plotHeight} x2={svgWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      <SvgLine x1={yAxisWidth} y1={0} x2={yAxisWidth} y2={plotHeight} stroke={borderColor} strokeWidth={1} />
+      {gridValues.map(({ v, y }) => (
+        <SvgText key={v} x={yAxisWidth - 4} y={y + 4} textAnchor="end" fontSize={9} fill={textColor}>
+          {`${Math.round(v / 1000)}k`}
+        </SvgText>
+      ))}
+      {xLabels.map((d) => {
+        const i = data.indexOf(d);
+        return (
+          <SvgText key={d.year} x={xScale(i)} y={plotHeight + 13} textAnchor="middle" fontSize={9} fill={textColor}>
+            {String(d.year)}
+          </SvgText>
+        );
+      })}
+    </Svg>
+  );
+}
+
 interface ChartsProps {
   yearly: YearlyAmortizationRow[];
 }
@@ -36,9 +134,12 @@ export function Charts({ yearly }: ChartsProps) {
   const c = Colors[useScheme()];
   const styles = makeStyles(c);
 
-  const maxBalance = Math.max(...yearly.map((r) => r.remainingBalance), 1);
-  const maxTotal = Math.max(...yearly.map((r) => r.totalPrincipal + r.totalInterest), 1);
+  const yAxisWidth = 52;
+  const svgWidth = Math.min(Dimensions.get('window').width - 64, 736);
+  const svgPlotH = 180;
+  const svgH = svgPlotH + 18;
 
+  const areaData = yearly.map((r) => ({ year: r.year, principal: r.totalPrincipal, interest: r.totalInterest }));
   const totalPrincipal = yearly.reduce((s, r) => s + r.totalPrincipal, 0);
   const totalInterest = yearly.reduce((s, r) => s + r.totalInterest, 0);
   const total = totalPrincipal + totalInterest;
@@ -49,31 +150,22 @@ export function Charts({ yearly }: ChartsProps) {
 
   return (
     <View>
-      {/* Line chart: remaining balance */}
+      {/* Line/area chart: remaining balance */}
       <View style={styles.chartCard}>
         <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Vývoj zůstatku úvěru</Text>
-        <View style={styles.webChart}>
-          {yearly.map((r) => (
-            <View key={r.year} style={styles.webBarWrapper}>
-              <View
-                style={[
-                  styles.webBar,
-                  {
-                    height: Math.max(2, (r.remainingBalance / maxBalance) * 120),
-                    backgroundColor: c.chartPrimary,
-                    opacity: 0.85,
-                  },
-                ]}
-              />
-              {(r.year % 5 === 0 || r.year === yearly[yearly.length - 1]?.year) && (
-                <Text style={[styles.webBarLabel, { color: c.textSecondary }]}>{r.year}</Text>
-              )}
-            </View>
-          ))}
-        </View>
+        <LineAreaChart
+          data={yearly.map((r) => ({ year: r.year, value: r.remainingBalance }))}
+          svgWidth={svgWidth}
+          svgHeight={svgH}
+          plotHeight={svgPlotH}
+          yAxisWidth={yAxisWidth}
+          color={c.chartPrimary}
+          textColor={c.textSecondary}
+          borderColor={c.border}
+        />
       </View>
 
-      {/* Stacked bar chart: principal vs interest */}
+      {/* Stacked area chart: principal vs interest per year */}
       <View style={[styles.chartCard, { marginTop: 8 }]}>
         <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Jistina vs. úrok ročně</Text>
         <View style={styles.legend}>
@@ -86,23 +178,16 @@ export function Charts({ yearly }: ChartsProps) {
             <Text style={[styles.legendText, { color: c.textSecondary }]}>Úrok</Text>
           </View>
         </View>
-        <View style={styles.webChart}>
-          {yearly.map((r) => {
-            const total = r.totalPrincipal + r.totalInterest;
-            const totalH = (total / maxTotal) * 120;
-            const principalH = (r.totalPrincipal / total) * totalH;
-            const interestH = totalH - principalH;
-            return (
-              <View key={r.year} style={[styles.webBarWrapper, { justifyContent: 'flex-end' }]}>
-                <View style={{ height: interestH, width: '80%', backgroundColor: c.chartInterest, opacity: 0.85 }} />
-                <View style={{ height: principalH, width: '80%', backgroundColor: c.chartPrincipal, opacity: 0.85 }} />
-                {(r.year % 5 === 0 || r.year === yearly[yearly.length - 1]?.year) && (
-                  <Text style={[styles.webBarLabel, { color: c.textSecondary }]}>{r.year}</Text>
-                )}
-              </View>
-            );
-          })}
-        </View>
+        <StackedAreaChart
+          data={areaData}
+          svgWidth={svgWidth}
+          svgHeight={svgH}
+          plotHeight={svgPlotH}
+          yAxisWidth={yAxisWidth}
+          colors={{ principal: c.chartPrincipal, interest: c.chartInterest }}
+          textColor={c.textSecondary}
+          borderColor={c.border}
+        />
       </View>
       {/* Pie chart: principal vs interest totals */}
       <View style={[styles.chartCard, { marginTop: 8 }]}>
@@ -188,26 +273,6 @@ function makeStyles(c: ThemeColors) {
     legendText: {
       fontSize: 12,
       fontWeight: '500',
-    },
-    webChart: {
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      height: 140,
-      paddingHorizontal: 4,
-    },
-    webBarWrapper: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      marginHorizontal: 1,
-    },
-    webBar: {
-      width: '80%',
-      borderRadius: 3,
-    },
-    webBarLabel: {
-      fontSize: 9,
-      marginTop: 4,
     },
   });
 }
