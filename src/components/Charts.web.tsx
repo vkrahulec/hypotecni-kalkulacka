@@ -19,7 +19,7 @@ export function Charts({ yearly }: ChartsProps) {
     <View>
       {/* Line chart: remaining balance */}
       <View style={styles.chartCard}>
-        <Text style={[styles.chartTitle, { color: c.text }]}>Vývoj zůstatku úvěru</Text>
+        <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Vývoj zůstatku úvěru</Text>
         <View style={styles.webChart}>
           {yearly.map((r) => (
             <View key={r.year} style={styles.webBarWrapper}>
@@ -42,8 +42,8 @@ export function Charts({ yearly }: ChartsProps) {
       </View>
 
       {/* Stacked bar chart: principal vs interest */}
-      <View style={[styles.chartCard, { marginTop: 12 }]}>
-        <Text style={[styles.chartTitle, { color: c.text }]}>Jistina vs. úrok ročně</Text>
+      <View style={[styles.chartCard, { marginTop: 8 }]}>
+        <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Jistina vs. úrok ročně</Text>
         <View style={styles.legend}>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: c.chartPrincipal }]} />
@@ -79,19 +79,21 @@ export function Charts({ yearly }: ChartsProps) {
 function makeStyles(c: ThemeColors) {
   return StyleSheet.create({
     chartCard: {
-      backgroundColor: c.surface,
-      borderRadius: 14,
-      padding: 14,
+      backgroundColor: c.surfaceContainer,
+      borderRadius: 16,
+      padding: 16,
       overflow: 'hidden',
     },
     chartTitle: {
-      fontSize: 14,
+      fontSize: 13,
       fontWeight: '700',
+      letterSpacing: 0.1,
       marginBottom: 12,
+      textTransform: 'uppercase',
     },
     legend: {
       flexDirection: 'row',
-      marginBottom: 8,
+      marginBottom: 10,
     },
     legendItem: {
       flexDirection: 'row',
@@ -102,10 +104,11 @@ function makeStyles(c: ThemeColors) {
       width: 10,
       height: 10,
       borderRadius: 5,
-      marginRight: 4,
+      marginRight: 6,
     },
     legendText: {
       fontSize: 12,
+      fontWeight: '500',
     },
     webChart: {
       flexDirection: 'row',
@@ -121,11 +124,11 @@ function makeStyles(c: ThemeColors) {
     },
     webBar: {
       width: '80%',
-      borderRadius: 2,
+      borderRadius: 3,
     },
     webBarLabel: {
       fontSize: 9,
-      marginTop: 3,
+      marginTop: 4,
     },
   });
 }

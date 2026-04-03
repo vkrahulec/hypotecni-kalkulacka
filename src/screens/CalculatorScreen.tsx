@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, ThemeColors } from '../constants/colors';
@@ -33,10 +35,6 @@ import { SectionHeader } from '../components/SectionHeader';
 import { AdBanner } from '../components/AdBanner';
 
 const FIXATION_OPTIONS_UI = FIXATION_OPTIONS.map((y) => ({ label: `${y} r.`, value: y }));
-const YEAR_OPTIONS = Array.from(
-  { length: MAX_REPAYMENT_YEARS - MIN_REPAYMENT_YEARS + 1 },
-  (_, i) => ({ label: `${MIN_REPAYMENT_YEARS + i}`, value: MIN_REPAYMENT_YEARS + i })
-);
 const PAYMENT_TYPE_OPTIONS: { label: string; value: PaymentType }[] = [
   { label: 'Anuitní', value: 'annuity' },
   { label: 'Progresivní', value: 'progressive' },
@@ -204,21 +202,26 @@ export function CalculatorScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* ── Header ── */}
-          <View style={[styles.header, styles.headerRow]}>
-            <View>
-              <Text style={[styles.appTitle, { color: c.text }]}>Hypoteční kalkulačka</Text>
-              <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
-                Výpočet splátky a přehled úvěru
-              </Text>
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.appTitle, { color: c.primary }]}>Hypoteční kalkulačka</Text>
+                <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
+                  Výpočet splátky a přehled úvěru
+                </Text>
+              </View>
+              <Pressable
+                onPress={cycleTheme}
+                style={({ pressed }) => [
+                  styles.themeChip,
+                  { backgroundColor: pressed ? c.primaryContainer : c.surfaceContainer, borderColor: c.border },
+                ]}
+              >
+                <Text style={[styles.themeChipText, { color: c.primary }]}>
+                  {THEME_LABELS[themeOverride]}
+                </Text>
+              </Pressable>
             </View>
-            <TouchableOpacity
-              onPress={cycleTheme}
-              style={[styles.themeBtn, { borderColor: c.border, backgroundColor: c.surface }]}
-            >
-              <Text style={[styles.themeBtnText, { color: c.primary }]}>
-                {THEME_LABELS[themeOverride]}
-              </Text>
-            </TouchableOpacity>
           </View>
 
           {/* ── Input card ── */}
@@ -275,12 +278,32 @@ export function CalculatorScreen() {
               onChange={(v) => setField('fixationYears', v)}
             />
 
-            <SegmentedControl
-              label="Doba splácení (roky)"
-              options={YEAR_OPTIONS}
-              value={form.totalYears}
-              onChange={(v) => setField('totalYears', v)}
-            />
+            <View style={styles.sliderContainer}>
+              <View style={styles.sliderHeader}>
+                <Text style={[styles.sliderLabel, { color: c.textSecondary }]}>Doba splácení</Text>
+                <View style={[styles.sliderValueBadge, { backgroundColor: c.primaryContainer }]}>
+                  <Text style={[styles.sliderValueText, { color: c.primary }]}>{form.totalYears} let</Text>
+                </View>
+              </View>
+              <Slider
+                value={form.totalYears}
+                onValueChange={(v) => setField('totalYears', Math.round(v))}
+                minimumValue={MIN_REPAYMENT_YEARS}
+                maximumValue={MAX_REPAYMENT_YEARS}
+                step={1}
+                minimumTrackTintColor={c.primary}
+                maximumTrackTintColor={c.border}
+                thumbTintColor={c.primary}
+                style={styles.slider}
+              />
+              <View style={styles.sliderTicks}>
+                <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MIN_REPAYMENT_YEARS} r.</Text>
+                {[10, 15, 20, 25, 30, 35].map((y) => (
+                  <Text key={y} style={[styles.sliderTick, { color: c.textMuted }]}>{y}</Text>
+                ))}
+                <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MAX_REPAYMENT_YEARS} r.</Text>
+              </View>
+            </View>
 
             <SegmentedControl
               label="Typ splácení"
@@ -293,11 +316,14 @@ export function CalculatorScreen() {
           {/* ── Optional costs ── */}
           <TouchableOpacity
             onPress={() => setShowOptional((v) => !v)}
-            style={[styles.optionalToggle, { borderColor: c.border }]}
-            activeOpacity={0.7}
+            style={[styles.optionalToggle, { backgroundColor: c.surfaceContainer, borderColor: c.border }]}
+            activeOpacity={0.75}
           >
+            <Text style={[styles.optionalToggleIcon, { color: c.primary }]}>
+              {showOptional ? '▲' : '▼'}
+            </Text>
             <Text style={[styles.optionalToggleText, { color: c.primary }]}>
-              {showOptional ? '▲ Skrýt pojištění a poplatky' : '▼ Pojištění a poplatky (volitelné)'}
+              {showOptional ? 'Skrýt pojištění a poplatky' : 'Pojištění a poplatky (volitelné)'}
             </Text>
           </TouchableOpacity>
 
@@ -391,7 +417,7 @@ export function CalculatorScreen() {
               </View>
 
               {/* Charts */}
-              <View style={[styles.card, { backgroundColor: c.background }]}>
+              <View style={[styles.card, { backgroundColor: c.surface }]}>
                 <SectionHeader title="Grafy" />
                 <Charts yearly={result.yearlyAmortizationTable} />
               </View>
@@ -418,6 +444,17 @@ export function CalculatorScreen() {
 }
 
 function makeStyles(c: ThemeColors) {
+  const cardElevation = Platform.select({
+    ios: {
+      shadowColor: '#1B1B1F',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+    },
+    android: { elevation: 2 },
+    web: { boxShadow: '0 1px 4px rgba(27,27,31,0.09)' } as object,
+  });
+
   return StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -427,42 +464,45 @@ function makeStyles(c: ThemeColors) {
     },
     content: {
       paddingHorizontal: 16,
-      paddingTop: 8,
+      paddingTop: 4,
+      paddingBottom: 8,
       maxWidth: 800,
       alignSelf: 'center',
       width: '100%',
     },
     header: {
-      paddingVertical: 16,
+      paddingVertical: 20,
+      paddingHorizontal: 2,
     },
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: 12,
     },
-    themeBtn: {
+    themeChip: {
       borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
+      borderRadius: 20,
+      paddingHorizontal: 14,
+      paddingVertical: 7,
     },
-    themeBtnText: {
+    themeChipText: {
       fontSize: 13,
       fontWeight: '600',
     },
     appTitle: {
-      fontSize: 26,
+      fontSize: 24,
       fontWeight: '800',
       letterSpacing: -0.5,
     },
     appSubtitle: {
-      fontSize: 14,
+      fontSize: 13,
       marginTop: 2,
     },
     card: {
-      borderRadius: 16,
+      borderRadius: 20,
       padding: 16,
       marginBottom: 12,
+      ...cardElevation,
     },
     cardsRow: {
       flexDirection: 'row',
@@ -471,10 +511,18 @@ function makeStyles(c: ThemeColors) {
     },
     optionalToggle: {
       borderWidth: 1,
-      borderRadius: 10,
-      padding: 12,
+      borderRadius: 14,
+      paddingVertical: 13,
+      paddingHorizontal: 16,
       alignItems: 'center',
       marginBottom: 12,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 8,
+    },
+    optionalToggleIcon: {
+      fontSize: 12,
+      fontWeight: '700',
     },
     optionalToggleText: {
       fontWeight: '600',
@@ -483,6 +531,43 @@ function makeStyles(c: ThemeColors) {
     loadingRow: {
       paddingVertical: 32,
       alignItems: 'center',
+    },
+    sliderContainer: {
+      marginBottom: 16,
+    },
+    sliderHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
+    sliderLabel: {
+      fontSize: 12,
+      fontWeight: '500',
+      letterSpacing: 0.1,
+    },
+    sliderValueBadge: {
+      borderRadius: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 3,
+    },
+    sliderValueText: {
+      fontSize: 13,
+      fontWeight: '700',
+    },
+    slider: {
+      width: '100%',
+      height: 40,
+    },
+    sliderTicks: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: -4,
+      paddingHorizontal: 2,
+    },
+    sliderTick: {
+      fontSize: 10,
+      fontWeight: '500',
     },
   });
 }

@@ -29,14 +29,20 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
   return (
     <View style={styles.container}>
       {/* Toggle */}
-      <View style={[styles.toggle, { backgroundColor: c.surfaceSecondary, borderColor: c.border }]}>
+      <View style={styles.toggleRow}>
         {(['yearly', 'monthly'] as const).map((v) => (
           <TouchableOpacity
             key={v}
-            style={[styles.toggleBtn, view === v && { backgroundColor: c.primary }]}
+            style={[
+              styles.toggleChip,
+              view === v
+                ? { backgroundColor: c.primary, borderColor: c.primary }
+                : { backgroundColor: c.surfaceContainer, borderColor: c.border },
+            ]}
             onPress={() => setView(v)}
+            activeOpacity={0.75}
           >
-            <Text style={[styles.toggleText, { color: view === v ? '#fff' : c.textSecondary }]}>
+            <Text style={[styles.toggleText, { color: view === v ? c.onPrimary : c.textSecondary }]}>
               {v === 'monthly' ? 'Měsíčně' : 'Ročně'}
             </Text>
           </TouchableOpacity>
@@ -47,7 +53,7 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View>
           {/* Header */}
-          <View style={[styles.headerRow, { backgroundColor: c.surfaceSecondary }]}>
+          <View style={[styles.headerRow, { backgroundColor: c.surfaceContainer }]}>
             {headers.map((h, i) => (
               <Text
                 key={h}
@@ -71,7 +77,7 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
                     style={[
                       styles.row,
                       { borderBottomColor: c.border },
-                      idx % 2 === 0 && { backgroundColor: c.surface },
+                      idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
                     ]}
                   >
                     <Text style={[styles.cellFirst, { color: c.text }]}>{row.month}</Text>
@@ -93,7 +99,7 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
                     style={[
                       styles.row,
                       { borderBottomColor: c.border },
-                      idx % 2 === 0 && { backgroundColor: c.surface },
+                      idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
                     ]}
                   >
                     <Text style={[styles.cellFirst, { color: c.text }]}>{row.year}</Text>
@@ -126,16 +132,20 @@ function makeStyles(c: ThemeColors) {
       borderWidth: 1,
       borderColor: c.border,
     },
-    toggle: {
+    toggleRow: {
       flexDirection: 'row',
-      padding: 4,
+      gap: 8,
+      padding: 12,
       borderBottomWidth: 1,
       borderBottomColor: c.border,
+      backgroundColor: c.surface,
     },
-    toggleBtn: {
-      flex: 1,
-      paddingVertical: 6,
-      borderRadius: 7,
+    toggleChip: {
+      borderWidth: 1.5,
+      borderRadius: 20,
+      paddingHorizontal: 16,
+      height: 34,
+      justifyContent: 'center',
       alignItems: 'center',
     },
     toggleText: {
@@ -150,7 +160,7 @@ function makeStyles(c: ThemeColors) {
     headerCell: {
       fontSize: 11,
       fontWeight: '700',
-      letterSpacing: 0.4,
+      letterSpacing: 0.5,
       textAlign: 'right',
       textTransform: 'uppercase',
     },
@@ -159,7 +169,7 @@ function makeStyles(c: ThemeColors) {
     },
     row: {
       flexDirection: 'row',
-      paddingVertical: 8,
+      paddingVertical: 9,
       paddingHorizontal: 4,
       borderBottomWidth: StyleSheet.hairlineWidth,
     },

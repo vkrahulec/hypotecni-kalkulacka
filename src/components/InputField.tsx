@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   Platform,
 } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
@@ -77,32 +76,36 @@ function makeStyles(
     : focused
     ? c.borderFocus
     : c.border;
+  const borderWidth = focused || hasError || hasWarning ? 2 : 1;
+  const labelColor = hasError ? c.error : focused ? c.primary : c.textSecondary;
+
   return StyleSheet.create({
     container: {
-      marginBottom: 12,
+      marginBottom: 16,
     },
     label: {
-      fontSize: 13,
-      fontWeight: '600',
-      color: c.textSecondary,
-      marginBottom: 4,
-      letterSpacing: 0.2,
+      fontSize: 12,
+      fontWeight: '500',
+      color: labelColor,
+      marginBottom: 6,
+      letterSpacing: 0.1,
     },
     inputRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: autoCalculated ? c.surfaceSecondary : c.surface,
-      borderWidth: 1.5,
+      backgroundColor: autoCalculated ? c.surfaceVariant : c.surfaceContainer,
+      borderWidth,
       borderColor,
       borderRadius: 10,
-      paddingHorizontal: 12,
+      paddingHorizontal: 14,
+      minHeight: 52,
       ...Platform.select({
         web: { outlineStyle: 'none' } as object,
       }),
     },
     input: {
       flex: 1,
-      height: 44,
+      height: 52,
       fontSize: 16,
       color: autoCalculated ? c.textSecondary : c.text,
       fontWeight: autoCalculated ? '400' : '500',
@@ -113,24 +116,25 @@ function makeStyles(
     suffix: {
       fontSize: 14,
       color: c.textMuted,
-      marginLeft: 4,
+      marginLeft: 6,
+      fontWeight: '400',
     },
     hint: {
       fontSize: 12,
       color: c.textMuted,
-      marginTop: 3,
+      marginTop: 4,
       marginLeft: 2,
     },
     warning: {
       fontSize: 12,
       color: c.warning,
-      marginTop: 3,
+      marginTop: 4,
       marginLeft: 2,
     },
     error: {
       fontSize: 12,
       color: c.error,
-      marginTop: 3,
+      marginTop: 4,
       marginLeft: 2,
     },
   });

@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string | number>({
   return (
     <View style={styles.container}>
       <Text style={[styles.label, { color: c.textSecondary }]}>{label}</Text>
-      <View style={[styles.track, { backgroundColor: c.surfaceSecondary, borderColor: c.border }]}>
+      <View style={styles.track}>
         {options.map((opt) => {
           const active = opt.value === value;
           return (
@@ -34,16 +34,18 @@ export function SegmentedControl<T extends string | number>({
               key={String(opt.value)}
               onPress={() => onChange(opt.value)}
               style={[
-                styles.segment,
-                active && { backgroundColor: c.primary },
+                styles.chip,
+                active
+                  ? { backgroundColor: c.primary, borderColor: c.primary }
+                  : { backgroundColor: c.surfaceContainer, borderColor: c.border },
               ]}
-              activeOpacity={0.8}
+              activeOpacity={0.75}
             >
               <Text
                 style={[
-                  styles.segmentText,
-                  { color: active ? '#fff' : c.textSecondary },
-                  active && styles.segmentTextActive,
+                  styles.chipText,
+                  { color: active ? c.onPrimary : c.textSecondary },
+                  active && styles.chipTextActive,
                 ]}
               >
                 {opt.label}
@@ -58,32 +60,33 @@ export function SegmentedControl<T extends string | number>({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 4,
-    letterSpacing: 0.2,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+    marginBottom: 8,
   },
   track: {
     flexDirection: 'row',
-    borderRadius: 10,
-    borderWidth: 1,
-    padding: 3,
     flexWrap: 'wrap',
+    rowGap: 6,
+    columnGap: 6,
   },
-  segment: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 8,
-    margin: 1,
+  chip: {
+    borderWidth: 1.5,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  segmentText: {
+  chipText: {
     fontSize: 13,
     fontWeight: '500',
   },
-  segmentTextActive: {
+  chipTextActive: {
     fontWeight: '700',
   },
 });

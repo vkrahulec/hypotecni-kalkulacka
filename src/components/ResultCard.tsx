@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
 import { useScheme } from '../context/ThemeContext';
 import { formatCZK } from '../utils/formatting';
@@ -26,28 +26,39 @@ export function ResultCard({ title, value, subtitle, accent, warning }: ResultCa
 }
 
 function makeStyles(c: ThemeColors, accent: boolean, warning: boolean) {
-  const bg = warning ? c.warningLight : accent ? c.primaryLight : c.surface;
-  const titleColor = warning ? c.warning : accent ? c.primary : c.textSecondary;
-  const valueColor = warning ? c.warning : accent ? c.primary : c.text;
+  const bg = warning ? c.errorLight : accent ? c.primaryContainer : c.surfaceContainer;
+  const titleColor = warning ? c.error : accent ? c.primary : c.textSecondary;
+  const valueColor = warning ? c.error : accent ? c.primary : c.text;
 
   return StyleSheet.create({
     card: {
       flex: 1,
       backgroundColor: bg,
-      borderRadius: 14,
-      padding: 14,
+      borderRadius: 16,
+      padding: 16,
       margin: 4,
       minWidth: 140,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#1B1B1F',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+        },
+        android: { elevation: 1 },
+        web: { boxShadow: '0 1px 3px rgba(27,27,31,0.08)' } as object,
+      }),
     },
     title: {
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: '600',
       color: titleColor,
-      letterSpacing: 0.3,
-      marginBottom: 6,
+      letterSpacing: 0.4,
+      textTransform: 'uppercase',
+      marginBottom: 8,
     },
     value: {
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: '700',
       color: valueColor,
       letterSpacing: -0.3,
@@ -55,8 +66,8 @@ function makeStyles(c: ThemeColors, accent: boolean, warning: boolean) {
     subtitle: {
       fontSize: 11,
       color: titleColor,
-      marginTop: 3,
-      opacity: 0.8,
+      marginTop: 4,
+      opacity: 0.75,
     },
   });
 }
