@@ -7,7 +7,7 @@ export const ADMOB_BANNER_UNIT_ID =
     : 'ca-app-pub-3940256099942544/2934735716'; // Google test banner iOS ID
 
 // AdSense (web) — replace with your publisher ID and ad slot
-export const ADSENSE_PUBLISHER_ID = 'ca-pub-XXXXXXXXXXXXXXXXX';
+export const ADSENSE_PUBLISHER_ID = 'ca-pub-7234855145203844';
 export const ADSENSE_AD_SLOT = 'XXXXXXXXXX';
 
 export const FIXATION_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20] as const;
