@@ -110,6 +110,7 @@ export function CalculatorScreen() {
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [pullState, setPullState] = useState<'hidden' | 'pulling' | 'ready' | 'refreshing'>('hidden');
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -127,18 +128,31 @@ export function CalculatorScreen() {
       startedAtTop = !el || el.scrollTop === 0;
     };
 
+    const onTouchMove = (e: Event) => {
+      if (!startedAtTop) return;
+      const delta = (e as TouchEvent).touches[0].clientY - startY;
+      if (delta >= THRESHOLD) setPullState('ready');
+      else if (delta > 8) setPullState('pulling');
+      else setPullState('hidden');
+    };
+
     const onTouchEnd = (e: Event) => {
       if (!startedAtTop) return;
-      const touch = (e as TouchEvent).changedTouches[0];
-      if (touch.clientY - startY > THRESHOLD) {
-        window.location.reload();
+      const delta = (e as TouchEvent).changedTouches[0].clientY - startY;
+      if (delta > THRESHOLD) {
+        setPullState('refreshing');
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        setPullState('hidden');
       }
     };
 
     document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
     document.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
       document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
@@ -222,6 +236,17 @@ export function CalculatorScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={['top', 'left', 'right', 'bottom']}>
+      {Platform.OS === 'web' && pullState !== 'hidden' && (
+        <View style={styles.pullIndicator} pointerEvents="none">
+          {pullState === 'refreshing' ? (
+            <ActivityIndicator color={c.primary} size="small" />
+          ) : (
+            <Text style={[styles.pullArrow, { color: pullState === 'ready' ? c.primary : c.textMuted }]}>
+              {pullState === 'ready' ? '↑' : '↓'}
+            </Text>
+          )}
+        </View>
+      )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -504,6 +529,18 @@ function makeStyles(c: ThemeColors) {
   return StyleSheet.create({
     safeArea: {
       flex: 1,
+    },
+    pullIndicator: {
+      position: 'absolute',
+      top: 56,
+      left: 0,
+      right: 0,
+      alignItems: 'center',
+      zIndex: 10,
+    },
+    pullArrow: {
+      fontSize: 22,
+      fontWeight: '600',
     },
     scroll: {
       flex: 1,
