@@ -190,7 +190,7 @@ export function CalculatorScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={['top', 'left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -433,7 +433,7 @@ export function CalculatorScreen() {
             </>
           )}
 
-          <View style={{ height: 24 }} />
+          <View style={{ height: 32 }} />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -465,7 +465,7 @@ function makeStyles(c: ThemeColors) {
     content: {
       paddingHorizontal: 16,
       paddingTop: 4,
-      paddingBottom: 8,
+      paddingBottom: 16,
       maxWidth: 800,
       alignSelf: 'center',
       width: '100%',
