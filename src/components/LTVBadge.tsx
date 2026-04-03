@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 import {
   LTV_MAX_THRESHOLD,
   LTV_WARNING_THRESHOLD,
@@ -18,8 +19,7 @@ export function LTVBadge({
   ltvWarning = LTV_WARNING_THRESHOLD,
   ltvMax = LTV_MAX_THRESHOLD,
 }: LTVBadgeProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
 
   const isError = ltv > ltvMax;
   const isWarning = ltv > ltvWarning && !isError;

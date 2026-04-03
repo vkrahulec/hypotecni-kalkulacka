@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 
 interface SectionHeaderProps {
   title: string;
@@ -8,8 +9,7 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({ title, toggle }: SectionHeaderProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
 
   return (
     <View style={styles.row}>

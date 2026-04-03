@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  useColorScheme,
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, ThemeColors } from '../constants/colors';
+import { useScheme, useThemeOverride, ThemeOverride } from '../context/ThemeContext';
 import { FIXATION_OPTIONS, MIN_REPAYMENT_YEARS, MAX_REPAYMENT_YEARS } from '../constants/config';
 import {
   MortgageInput,
@@ -91,9 +91,18 @@ function parseForm(form: FormState): MortgageInput {
   };
 }
 
+const THEME_CYCLE: ThemeOverride[] = ['system', 'light', 'dark'];
+const THEME_LABELS: Record<ThemeOverride, string> = { system: 'Auto', light: 'Světlý', dark: 'Tmavý' };
+
 export function CalculatorScreen() {
-  const scheme = useColorScheme() ?? 'light';
+  const scheme = useScheme();
   const c = Colors[scheme];
+  const { themeOverride, setThemeOverride } = useThemeOverride();
+
+  function cycleTheme() {
+    const next = THEME_CYCLE[(THEME_CYCLE.indexOf(themeOverride) + 1) % THEME_CYCLE.length];
+    setThemeOverride(next);
+  }
   const styles = makeStyles(c);
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
@@ -195,11 +204,21 @@ export function CalculatorScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* ── Header ── */}
-          <View style={styles.header}>
-            <Text style={[styles.appTitle, { color: c.text }]}>Hypoteční kalkulačka</Text>
-            <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
-              Výpočet splátky a přehled úvěru
-            </Text>
+          <View style={[styles.header, styles.headerRow]}>
+            <View>
+              <Text style={[styles.appTitle, { color: c.text }]}>Hypoteční kalkulačka</Text>
+              <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
+                Výpočet splátky a přehled úvěru
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={cycleTheme}
+              style={[styles.themeBtn, { borderColor: c.border, backgroundColor: c.surface }]}
+            >
+              <Text style={[styles.themeBtnText, { color: c.primary }]}>
+                {THEME_LABELS[themeOverride]}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* ── Input card ── */}
@@ -415,6 +434,21 @@ function makeStyles(c: ThemeColors) {
     },
     header: {
       paddingVertical: 16,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    themeBtn: {
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    themeBtnText: {
+      fontSize: 13,
+      fontWeight: '600',
     },
     appTitle: {
       fontSize: 26,

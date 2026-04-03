@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 
 interface Option<T extends string | number> {
   label: string;
@@ -20,8 +21,7 @@ export function SegmentedControl<T extends string | number>({
   value,
   onChange,
 }: SegmentedControlProps<T>) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
 
   return (
     <View style={styles.container}>

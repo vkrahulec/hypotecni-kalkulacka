@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 
 // Web-only AdBanner — no AdMob imports (native-only library)
 // Replace the inner View content with your real AdSense <ins> tag via a web index.html injection.
 export function AdBanner() {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
 
   return (
     <View

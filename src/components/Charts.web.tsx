@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
+import { useScheme } from '../context/ThemeContext';
 
 interface ChartsProps {
   yearly: YearlyAmortizationRow[];
 }
 
 export function Charts({ yearly }: ChartsProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
   const styles = makeStyles(c);
 
   const maxBalance = Math.max(...yearly.map((r) => r.remainingBalance), 1);
@@ -62,8 +62,8 @@ export function Charts({ yearly }: ChartsProps) {
             const interestH = totalH - principalH;
             return (
               <View key={r.year} style={[styles.webBarWrapper, { justifyContent: 'flex-end' }]}>
-                <View style={{ height: interestH, backgroundColor: c.chartInterest, opacity: 0.85 }} />
-                <View style={{ height: principalH, backgroundColor: c.chartPrincipal, opacity: 0.85 }} />
+                <View style={{ height: interestH, width: '80%', backgroundColor: c.chartInterest, opacity: 0.85 }} />
+                <View style={{ height: principalH, width: '80%', backgroundColor: c.chartPrincipal, opacity: 0.85 }} />
                 {(r.year % 5 === 0 || r.year === yearly[yearly.length - 1]?.year) && (
                   <Text style={[styles.webBarLabel, { color: c.textSecondary }]}>{r.year}</Text>
                 )}

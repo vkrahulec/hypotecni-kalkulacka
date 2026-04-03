@@ -5,10 +5,10 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  useColorScheme,
   Platform,
 } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 
 interface InputFieldProps {
   label: string;
@@ -35,8 +35,7 @@ export function InputField({
   editable = true,
   autoCalculated = false,
 }: InputFieldProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
   const [focused, setFocused] = useState(false);
   const styles = makeStyles(c, focused, !!error, !!warning, autoCalculated);
 

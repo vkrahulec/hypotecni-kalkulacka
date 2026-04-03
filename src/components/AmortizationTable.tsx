@@ -5,9 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  useColorScheme,
 } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 import { AmortizationRow, YearlyAmortizationRow } from '../utils/calculator';
 import { formatCZK } from '../utils/formatting';
 
@@ -17,8 +17,7 @@ interface AmortizationTableProps {
 }
 
 export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
   const [view, setView] = useState<'monthly' | 'yearly'>('yearly');
   const styles = makeStyles(c);
 

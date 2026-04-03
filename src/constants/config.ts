@@ -10,11 +10,11 @@ export const ADMOB_BANNER_UNIT_ID =
 export const ADSENSE_PUBLISHER_ID = 'ca-pub-XXXXXXXXXXXXXXXXX';
 export const ADSENSE_AD_SLOT = 'XXXXXXXXXX';
 
-export const FIXATION_OPTIONS = [1, 2, 3, 5, 7, 10] as const;
+export const FIXATION_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20] as const;
 export type FixationYear = (typeof FIXATION_OPTIONS)[number];
 
 export const MIN_REPAYMENT_YEARS = 5;
-export const MAX_REPAYMENT_YEARS = 30;
+export const MAX_REPAYMENT_YEARS = 40;
 
 export const LTV_WARNING_THRESHOLD = 80;
 export const LTV_MAX_THRESHOLD = 90;

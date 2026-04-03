@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LineChart, BarChart } from 'react-native-gifted-charts';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
+import { useScheme } from '../context/ThemeContext';
 
 // Native-only Charts (Android / iOS).
 // On web the bundler picks Charts.web.tsx — this file is never bundled for web.
@@ -12,8 +13,7 @@ interface ChartsProps {
 }
 
 export function Charts({ yearly }: ChartsProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
   const styles = makeStyles(c);
   const chartWidth = Math.min(Dimensions.get('window').width - 60, 700);
 

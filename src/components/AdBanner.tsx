@@ -1,14 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, useColorScheme } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { Colors } from '../constants/colors';
 import { ADMOB_BANNER_UNIT_ID } from '../constants/config';
+import { useScheme } from '../context/ThemeContext';
 
 // Native-only AdBanner (Android / iOS).
 // On web the bundler picks AdBanner.web.tsx instead — this file is never bundled for web.
 export function AdBanner() {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
 
   return (
     <View style={[styles.container, { backgroundColor: c.adBackground }]}>

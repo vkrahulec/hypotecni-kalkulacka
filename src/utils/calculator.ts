@@ -70,8 +70,8 @@ export function validateInputs(input: MortgageInput): ValidationError[] {
     errors.push({ field: 'annualInterestRate', message: 'Úroková sazba musí být v rozmezí 0,01 % – 30 %.' });
   }
 
-  if (input.totalYears < 5 || input.totalYears > 30) {
-    errors.push({ field: 'totalYears', message: 'Doba splácení musí být 5 až 30 let.' });
+  if (input.totalYears < 5 || input.totalYears > 40) {
+    errors.push({ field: 'totalYears', message: 'Doba splácení musí být 5 až 40 let.' });
   }
 
   if (input.propertyInsuranceMonthly < 0) {

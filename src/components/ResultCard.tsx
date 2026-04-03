@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
+import { useScheme } from '../context/ThemeContext';
 import { formatCZK } from '../utils/formatting';
 
 interface ResultCardProps {
@@ -12,8 +13,7 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ title, value, subtitle, accent, warning }: ResultCardProps) {
-  const scheme = useColorScheme() ?? 'light';
-  const c = Colors[scheme];
+  const c = Colors[useScheme()];
   const styles = makeStyles(c, !!accent, !!warning);
 
   return (
