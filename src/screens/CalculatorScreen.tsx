@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
-  RefreshControl,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -111,16 +110,38 @@ export function CalculatorScreen() {
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-
-  function handleRefresh() {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      window.location.reload();
-    }
-    setRefreshing(false);
-  }
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pull-to-refresh on web via document touch events
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const THRESHOLD = 80;
+    let startY = 0;
+    let startedAtTop = false;
+
+    const onTouchStart = (e: Event) => {
+      const touch = (e as TouchEvent).touches[0];
+      startY = touch.clientY;
+      const el = document.getElementById('main-scroll');
+      startedAtTop = !el || el.scrollTop === 0;
+    };
+
+    const onTouchEnd = (e: Event) => {
+      if (!startedAtTop) return;
+      const touch = (e as TouchEvent).changedTouches[0];
+      if (touch.clientY - startY > THRESHOLD) {
+        window.location.reload();
+      }
+    };
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
 
   // Derived values
   const propertyPrice = parseCzechNumber(form.propertyPrice);
@@ -206,15 +227,11 @@ export function CalculatorScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
+          nativeID="main-scroll"
           style={styles.scroll}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            Platform.OS === 'web' ? (
-              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[c.primary]} tintColor={c.primary} />
-            ) : undefined
-          }
         >
           {/* ── Header ── */}
           <View style={styles.header}>
