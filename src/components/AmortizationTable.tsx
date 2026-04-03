@@ -50,76 +50,74 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
       </View>
 
       {/* Table */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View>
-          {/* Header */}
-          <View style={[styles.headerRow, { backgroundColor: c.surfaceContainer }]}>
-            {headers.map((h, i) => (
-              <Text
-                key={h}
-                style={[
-                  styles.headerCell,
-                  { color: c.textSecondary },
-                  i === 0 ? styles.colFirst : styles.colValue,
-                ]}
-              >
-                {h}
-              </Text>
-            ))}
-          </View>
-
-          {/* Rows */}
-          <ScrollView style={styles.rowsScroll} nestedScrollEnabled>
-            {view === 'monthly'
-              ? monthly.map((row, idx) => (
-                  <View
-                    key={row.month}
-                    style={[
-                      styles.row,
-                      { borderBottomColor: c.border },
-                      idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
-                    ]}
-                  >
-                    <Text style={[styles.cellFirst, { color: c.text }]}>{row.month}</Text>
-                    <Text style={[styles.cell, { color: c.text }]}>{formatCZK(row.payment)}</Text>
-                    <Text style={[styles.cell, { color: c.chartPrincipal }]}>
-                      {formatCZK(row.principal)}
-                    </Text>
-                    <Text style={[styles.cell, { color: c.chartInterest }]}>
-                      {formatCZK(row.interest)}
-                    </Text>
-                    <Text style={[styles.cell, { color: c.textSecondary }]}>
-                      {formatCZK(row.remainingBalance)}
-                    </Text>
-                  </View>
-                ))
-              : yearly.map((row, idx) => (
-                  <View
-                    key={row.year}
-                    style={[
-                      styles.row,
-                      { borderBottomColor: c.border },
-                      idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
-                    ]}
-                  >
-                    <Text style={[styles.cellFirst, { color: c.text }]}>{row.year}</Text>
-                    <Text style={[styles.cell, { color: c.text }]}>
-                      {formatCZK(row.totalPayment)}
-                    </Text>
-                    <Text style={[styles.cell, { color: c.chartPrincipal }]}>
-                      {formatCZK(row.totalPrincipal)}
-                    </Text>
-                    <Text style={[styles.cell, { color: c.chartInterest }]}>
-                      {formatCZK(row.totalInterest)}
-                    </Text>
-                    <Text style={[styles.cell, { color: c.textSecondary }]}>
-                      {formatCZK(row.remainingBalance)}
-                    </Text>
-                  </View>
-                ))}
-          </ScrollView>
+      <View>
+        {/* Header */}
+        <View style={[styles.headerRow, { backgroundColor: c.surfaceContainer }]}>
+          {headers.map((h, i) => (
+            <Text
+              key={h}
+              style={[
+                styles.headerCell,
+                { color: c.textSecondary },
+                i === 0 ? styles.colFirst : styles.colValue,
+              ]}
+            >
+              {h}
+            </Text>
+          ))}
         </View>
-      </ScrollView>
+
+        {/* Rows */}
+        <ScrollView style={styles.rowsScroll} nestedScrollEnabled>
+          {view === 'monthly'
+            ? monthly.map((row, idx) => (
+                <View
+                  key={row.month}
+                  style={[
+                    styles.row,
+                    { borderBottomColor: c.border },
+                    idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
+                  ]}
+                >
+                  <Text style={[styles.cellFirst, { color: c.text }]}>{row.month}</Text>
+                  <Text style={[styles.cell, { color: c.text }]}>{formatCZK(row.payment)}</Text>
+                  <Text style={[styles.cell, { color: c.chartPrincipal }]}>
+                    {formatCZK(row.principal)}
+                  </Text>
+                  <Text style={[styles.cell, { color: c.chartInterest }]}>
+                    {formatCZK(row.interest)}
+                  </Text>
+                  <Text style={[styles.cell, { color: c.textSecondary }]}>
+                    {formatCZK(row.remainingBalance)}
+                  </Text>
+                </View>
+              ))
+            : yearly.map((row, idx) => (
+                <View
+                  key={row.year}
+                  style={[
+                    styles.row,
+                    { borderBottomColor: c.border },
+                    idx % 2 !== 0 && { backgroundColor: c.surfaceContainer },
+                  ]}
+                >
+                  <Text style={[styles.cellFirst, { color: c.text }]}>{row.year}</Text>
+                  <Text style={[styles.cell, { color: c.text }]}>
+                    {formatCZK(row.totalPayment)}
+                  </Text>
+                  <Text style={[styles.cell, { color: c.chartPrincipal }]}>
+                    {formatCZK(row.totalPrincipal)}
+                  </Text>
+                  <Text style={[styles.cell, { color: c.chartInterest }]}>
+                    {formatCZK(row.totalInterest)}
+                  </Text>
+                  <Text style={[styles.cell, { color: c.textSecondary }]}>
+                    {formatCZK(row.remainingBalance)}
+                  </Text>
+                </View>
+              ))}
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -173,19 +171,19 @@ function makeStyles(c: ThemeColors) {
       paddingHorizontal: 4,
       borderBottomWidth: StyleSheet.hairlineWidth,
     },
-    colFirst: { width: 56, textAlign: 'center' },
-    colValue: { width: 110, textAlign: 'right', paddingHorizontal: 6 },
+    colFirst: { flex: 1, textAlign: 'center' },
+    colValue: { flex: 2, textAlign: 'right', paddingHorizontal: 4 },
     cellFirst: {
-      width: 56,
+      flex: 1,
       fontSize: 13,
       fontWeight: '600',
       textAlign: 'center',
     },
     cell: {
-      width: 110,
+      flex: 2,
       fontSize: 13,
       textAlign: 'right',
-      paddingHorizontal: 6,
+      paddingHorizontal: 4,
     },
   });
 }
