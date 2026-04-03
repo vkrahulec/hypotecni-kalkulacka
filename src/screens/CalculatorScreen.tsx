@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
+  RefreshControl,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,6 +111,14 @@ export function CalculatorScreen() {
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  function handleRefresh() {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.reload();
+    }
+    setRefreshing(false);
+  }
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -201,6 +210,11 @@ export function CalculatorScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            Platform.OS === 'web' ? (
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[c.primary]} tintColor={c.primary} />
+            ) : undefined
+          }
         >
           {/* ── Header ── */}
           <View style={styles.header}>
