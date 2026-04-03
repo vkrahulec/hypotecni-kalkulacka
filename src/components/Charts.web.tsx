@@ -1,8 +1,32 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Path, Text as SvgText } from 'react-native-svg';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
 import { useScheme } from '../context/ThemeContext';
+
+function describeDonutSegment(
+  cx: number, cy: number,
+  outerR: number, innerR: number,
+  startAngle: number, endAngle: number
+): string {
+  function polar(r: number, deg: number) {
+    const rad = ((deg - 90) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+  const os = polar(outerR, startAngle);
+  const oe = polar(outerR, endAngle);
+  const ie = polar(innerR, endAngle);
+  const is_ = polar(innerR, startAngle);
+  const large = endAngle - startAngle > 180 ? 1 : 0;
+  return [
+    `M ${os.x} ${os.y}`,
+    `A ${outerR} ${outerR} 0 ${large} 1 ${oe.x} ${oe.y}`,
+    `L ${ie.x} ${ie.y}`,
+    `A ${innerR} ${innerR} 0 ${large} 0 ${is_.x} ${is_.y}`,
+    'Z',
+  ].join(' ');
+}
 
 interface ChartsProps {
   yearly: YearlyAmortizationRow[];
@@ -14,6 +38,14 @@ export function Charts({ yearly }: ChartsProps) {
 
   const maxBalance = Math.max(...yearly.map((r) => r.remainingBalance), 1);
   const maxTotal = Math.max(...yearly.map((r) => r.totalPrincipal + r.totalInterest), 1);
+
+  const totalPrincipal = yearly.reduce((s, r) => s + r.totalPrincipal, 0);
+  const totalInterest = yearly.reduce((s, r) => s + r.totalInterest, 0);
+  const total = totalPrincipal + totalInterest;
+  const principalAngle = (totalPrincipal / total) * 360;
+  // Clamp to avoid degenerate arcs
+  const pAngle = Math.min(Math.max(principalAngle, 1), 359);
+  const cx = 90, cy = 90, outerR = 75, innerR = 46;
 
   return (
     <View>
@@ -70,6 +102,53 @@ export function Charts({ yearly }: ChartsProps) {
               </View>
             );
           })}
+        </View>
+      </View>
+      {/* Pie chart: principal vs interest totals */}
+      <View style={[styles.chartCard, { marginTop: 8 }]}>
+        <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Rozložení celkových plateb</Text>
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: c.chartPrincipal }]} />
+            <Text style={[styles.legendText, { color: c.textSecondary }]}>
+              Jistina — {Math.round((totalPrincipal / total) * 100)} %
+            </Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: c.chartInterest }]} />
+            <Text style={[styles.legendText, { color: c.textSecondary }]}>
+              Úrok — {Math.round((totalInterest / total) * 100)} %
+            </Text>
+          </View>
+        </View>
+        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          <Svg width={180} height={180} viewBox="0 0 180 180">
+            <Path
+              d={describeDonutSegment(cx, cy, outerR, innerR, 0, pAngle)}
+              fill={c.chartPrincipal}
+            />
+            <Path
+              d={describeDonutSegment(cx, cy, outerR, innerR, pAngle, 360)}
+              fill={c.chartInterest}
+            />
+            <SvgText
+              x={cx} y={cy - 6}
+              textAnchor="middle"
+              fill={c.textMuted}
+              fontSize={10}
+            >
+              celkem
+            </SvgText>
+            <SvgText
+              x={cx} y={cy + 10}
+              textAnchor="middle"
+              fill={c.text}
+              fontSize={12}
+              fontWeight="bold"
+            >
+              {`${Math.round(total / 1000)} tis.`}
+            </SvgText>
+          </Svg>
         </View>
       </View>
     </View>

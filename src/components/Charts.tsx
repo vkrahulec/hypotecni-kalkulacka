@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { LineChart, BarChart } from 'react-native-gifted-charts';
+import { LineChart, BarChart, PieChart } from 'react-native-gifted-charts';
 import { Colors, ThemeColors } from '../constants/colors';
 import { YearlyAmortizationRow } from '../utils/calculator';
 import { useScheme } from '../context/ThemeContext';
@@ -28,6 +28,18 @@ export function Charts({ yearly }: ChartsProps) {
             : '',
       })),
     [yearly]
+  );
+
+  const totalPrincipal = useMemo(() => yearly.reduce((s, r) => s + r.totalPrincipal, 0), [yearly]);
+  const totalInterest = useMemo(() => yearly.reduce((s, r) => s + r.totalInterest, 0), [yearly]);
+  const total = totalPrincipal + totalInterest;
+
+  const pieData = useMemo(
+    () => [
+      { value: Math.round(totalPrincipal), color: c.chartPrincipal },
+      { value: Math.round(totalInterest), color: c.chartInterest },
+    ],
+    [totalPrincipal, totalInterest, c]
   );
 
   const stackData = useMemo(
@@ -107,6 +119,41 @@ export function Charts({ yearly }: ChartsProps) {
           barBorderRadius={2}
           formatYLabel={(v: string) => `${Math.round(Number(v) / 1000)} tis.`}
         />
+      </View>
+      {/* Pie chart: principal vs interest totals */}
+      <View style={[styles.chartCard, { marginTop: 8 }]}>
+        <Text style={[styles.chartTitle, { color: c.textSecondary }]}>Rozložení celkových plateb</Text>
+        <View style={styles.legend}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: c.chartPrincipal }]} />
+            <Text style={[styles.legendText, { color: c.textSecondary }]}>
+              Jistina — {Math.round((totalPrincipal / total) * 100)} %
+            </Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: c.chartInterest }]} />
+            <Text style={[styles.legendText, { color: c.textSecondary }]}>
+              Úrok — {Math.round((totalInterest / total) * 100)} %
+            </Text>
+          </View>
+        </View>
+        <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+          <PieChart
+            donut
+            data={pieData}
+            radius={90}
+            innerRadius={55}
+            innerCircleColor={c.surfaceContainer}
+            centerLabelComponent={() => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: c.textMuted, fontSize: 9 }}>celkem</Text>
+                <Text style={{ color: c.text, fontSize: 11, fontWeight: '700' }}>
+                  {`${Math.round(total / 1000)} tis.`}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
       </View>
     </View>
   );
