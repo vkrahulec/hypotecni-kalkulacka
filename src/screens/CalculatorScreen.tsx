@@ -109,7 +109,7 @@ export function CalculatorScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showOptional, setShowOptional] = useState(false);
-  const [showCharts, setShowCharts] = useState(true);
+  const [showCharts, setShowCharts] = useState(false);
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
