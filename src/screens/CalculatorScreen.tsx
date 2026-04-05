@@ -33,6 +33,8 @@ import { AmortizationTable } from '../components/AmortizationTable';
 import { Charts } from '../components/Charts';
 import { SectionHeader } from '../components/SectionHeader';
 import { AdBanner } from '../components/AdBanner';
+import { NavBar } from '../components/NavBar';
+import { Footer } from '../components/Footer';
 
 const FIXATION_OPTIONS_UI = FIXATION_OPTIONS.map((y) => ({ label: `${y} r.`, value: y }));
 const PAYMENT_TYPE_OPTIONS: { label: string; value: PaymentType }[] = [
@@ -236,6 +238,8 @@ export function CalculatorScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={['top', 'left', 'right', 'bottom']}>
+      {Platform.OS === 'web' && <NavBar />}
+
       {Platform.OS === 'web' && pullState !== 'hidden' && (
         <View style={styles.pullIndicator} pointerEvents="none">
           {pullState === 'refreshing' ? (
@@ -504,6 +508,7 @@ export function CalculatorScreen() {
             </>
           )}
 
+          {Platform.OS === 'web' && <Footer />}
           <View style={{ height: 32 }} />
         </ScrollView>
       </KeyboardAvoidingView>
