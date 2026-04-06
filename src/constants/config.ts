@@ -1,10 +1,10 @@
 import { Platform } from 'react-native';
 
-// Google AdMob — replace with your real IDs before publishing
+// Google AdMob
 export const ADMOB_BANNER_UNIT_ID =
   Platform.OS === 'android'
-    ? 'ca-app-pub-3940256099942544/6300978111' // Google test banner ID
-    : 'ca-app-pub-3940256099942544/2934735716'; // Google test banner iOS ID
+    ? 'ca-app-pub-7234855145203844/8365222167' // Production Android banner
+    : 'ca-app-pub-3940256099942544/2934735716'; // Google test banner iOS ID (no iOS target)
 
 // AdSense (web) — replace with your publisher ID and ad slot
 export const ADSENSE_PUBLISHER_ID = 'ca-pub-7234855145203844';
