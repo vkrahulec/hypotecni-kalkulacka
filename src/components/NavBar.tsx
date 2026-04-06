@@ -7,6 +7,7 @@ import { useNavigation } from '../context/NavigationContext';
 
 const LINKS = [
   { label: 'Kalkulačka', path: '/' },
+  { label: 'Typy hypoték', path: '/typy-hypotek' },
   { label: 'O aplikaci', path: '/o-aplikaci' },
   { label: 'Kontakt', path: '/kontakt' },
   { label: 'Soukromí', path: '/privacy-policy' },

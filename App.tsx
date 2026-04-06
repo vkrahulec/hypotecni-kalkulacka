@@ -7,6 +7,7 @@ import { CalculatorScreen } from './src/screens/CalculatorScreen';
 import { PrivacyPolicyScreen } from './src/screens/PrivacyPolicyScreen';
 import { AboutScreen } from './src/screens/AboutScreen';
 import { ContactScreen } from './src/screens/ContactScreen';
+import { MortgageTypesScreen } from './src/screens/MortgageTypesScreen';
 
 function AppInner() {
   const scheme = useScheme();
@@ -16,6 +17,7 @@ function AppInner() {
   if (route === '/privacy-policy') screen = <PrivacyPolicyScreen />;
   else if (route === '/o-aplikaci') screen = <AboutScreen />;
   else if (route === '/kontakt') screen = <ContactScreen />;
+  else if (route === '/typy-hypotek') screen = <MortgageTypesScreen />;
   else screen = <CalculatorScreen />;
 
   return (
