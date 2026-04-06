@@ -18,9 +18,6 @@ export function NavBar() {
 
   return (
     <View style={[styles.bar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-      <Pressable onPress={() => navigate('/')}>
-        <Text style={[styles.logo, { color: c.primary }]}>HypoCalc</Text>
-      </Pressable>
       <View style={styles.links}>
         {LINKS.map((link) => {
           const active = route === link.path;
@@ -47,7 +44,7 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
