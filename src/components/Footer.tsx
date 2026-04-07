@@ -14,6 +14,10 @@ export function Footer() {
         Výsledky kalkulačky jsou orientační a nepředstavují finanční poradenství.
       </Text>
       <View style={styles.links}>
+        <Pressable onPress={() => navigate('/clanky')}>
+          <Text style={[styles.link, { color: c.textSecondary }]}>Články</Text>
+        </Pressable>
+        <Text style={[styles.sep, { color: c.textMuted }]}>|</Text>
         <Pressable onPress={() => navigate('/typy-hypotek')}>
           <Text style={[styles.link, { color: c.textSecondary }]}>Typy hypoték</Text>
         </Pressable>

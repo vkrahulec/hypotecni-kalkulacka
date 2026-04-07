@@ -508,6 +508,7 @@ export function CalculatorScreen() {
             </>
           )}
 
+          {Platform.OS === 'web' && <HowToGuide c={c} />}
           {Platform.OS === 'web' && <Footer />}
           <View style={{ height: 32 }} />
         </ScrollView>
@@ -516,6 +517,105 @@ export function CalculatorScreen() {
       {/* Ad banner fixed at bottom */}
       <AdBanner />
     </SafeAreaView>
+  );
+}
+
+// ── How-to guide (web only, below the calculator) ────────────────────────────
+function HowToGuide({ c }: { c: ThemeColors }) {
+  const gs = StyleSheet.create({
+    wrap: { marginTop: 8 },
+    card: { backgroundColor: c.surface, borderRadius: 16, padding: 20, marginBottom: 16 },
+    h2: { fontSize: 18, fontWeight: '800', color: c.text, marginBottom: 16, letterSpacing: -0.3 },
+    stepRow: { flexDirection: 'row', marginBottom: 16, gap: 14 },
+    badge: {
+      width: 28, height: 28, borderRadius: 14,
+      backgroundColor: c.primary, alignItems: 'center', justifyContent: 'center',
+      marginTop: 1, flexShrink: 0,
+    },
+    badgeText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+    stepBody: { flex: 1 },
+    stepTitle: { fontSize: 14, fontWeight: '700', color: c.text, marginBottom: 3 },
+    stepDesc: { fontSize: 14, lineHeight: 21, color: c.textSecondary },
+    resultRow: { marginBottom: 12 },
+    resultLabel: { fontSize: 14, fontWeight: '700', color: c.primary, marginBottom: 2 },
+    resultDesc: { fontSize: 14, lineHeight: 21, color: c.textSecondary },
+    divider: { height: StyleSheet.hairlineWidth, backgroundColor: c.border, marginVertical: 12 },
+  });
+
+  const steps = [
+    {
+      title: 'Zadejte cenu nemovitosti',
+      desc: 'Do prvního pole vyplňte celkovou kupní cenu nemovitosti, kterou chcete koupit nebo postavit. Zadávejte cenu v korunách — oddělení tisíců mezerami je podporováno.',
+    },
+    {
+      title: 'Nastavte výši vlastních zdrojů (akontace)',
+      desc: 'Zadejte, kolik peněz vkládáte z vlastních úspor. Kalkulačka automaticky vypočítá výši úvěru a ukazatel LTV. Čím vyšší akontace, tím nižší LTV a obvykle i lepší úroková sazba od banky.',
+    },
+    {
+      title: 'Zadejte úrokovou sazbu a dobu fixace',
+      desc: 'Vyplňte roční úrokovou sazbu, kterou vám nabídla banka (nebo použijte orientační hodnotu). Zvolte dobu fixace — tedy na jak dlouho bude sazba garantována. Typicky 3, 5 nebo 7 let.',
+    },
+    {
+      title: 'Zvolte dobu splácení',
+      desc: 'Pomocí posuvníku nastavte celkovou dobu splácení hypotéky. Čím delší doba, tím nižší měsíční splátka — ale celkově zaplatíte více na úrocích. Optimum bývá 20–25 let.',
+    },
+    {
+      title: 'Prozkoumejte výsledky a amortizační plán',
+      desc: 'Kalkulačka okamžitě zobrazí měsíční splátku, celkové zaplacené úroky a přehledné grafy. V sekci „Splátkový kalendář" najdete detailní přehled každé splátky včetně poměru jistiny a úroku.',
+    },
+  ];
+
+  const results = [
+    {
+      label: 'Měsíční splátka',
+      desc: 'Výše pravidelné měsíční splátky, kterou budete platit po celou dobu fixace. U anuitního splácení zůstává konstantní, u progresivního splácení se v čase mění.',
+    },
+    {
+      label: 'Celková zaplacená částka',
+      desc: 'Součet všech splátek za celou dobu splácení — tedy jistina plus veškeré úroky. Tento údaj ukazuje skutečné celkové náklady hypotéky.',
+    },
+    {
+      label: 'Celkové úroky',
+      desc: 'Kolik celkem zaplatíte bance za zapůjčení peněz. Rozdíl mezi celkovou zaplacenou částkou a výší úvěru. U dlouhých hypoték s vysokou sazbou může přesáhnout i samotnou výši jistiny.',
+    },
+    {
+      label: 'LTV (Loan to Value)',
+      desc: 'Poměr výše úvěru k hodnotě nemovitosti v procentech. Hodnota pod 80 % obvykle znamená výhodnější sazbu. ČNB reguluje maximální LTV — zpravidla do 90 %.',
+    },
+    {
+      label: 'Splátkový kalendář',
+      desc: 'Detailní přehled každé splátky — kolik z ní jde na splacení jistiny, kolik na úroky a jaký je zbývající dluh. Přepínejte mezi měsíčním a ročním přehledem.',
+    },
+  ];
+
+  return (
+    <View style={gs.wrap}>
+      <View style={gs.card}>
+        <Text style={gs.h2}>Jak používat kalkulačku</Text>
+        {steps.map((step, i) => (
+          <View key={i} style={gs.stepRow}>
+            <View style={gs.badge}>
+              <Text style={gs.badgeText}>{i + 1}</Text>
+            </View>
+            <View style={gs.stepBody}>
+              <Text style={gs.stepTitle}>{step.title}</Text>
+              <Text style={gs.stepDesc}>{step.desc}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      <View style={gs.card}>
+        <Text style={gs.h2}>Co znamenají výsledky</Text>
+        {results.map((r, i) => (
+          <View key={i} style={gs.resultRow}>
+            <Text style={gs.resultLabel}>{r.label}</Text>
+            <Text style={gs.resultDesc}>{r.desc}</Text>
+            {i < results.length - 1 && <View style={gs.divider} />}
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
