@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
+  Switch,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -113,6 +114,8 @@ export function CalculatorScreen() {
   const [showOptional, setShowOptional] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [pullState, setPullState] = useState<'hidden' | 'pulling' | 'ready' | 'refreshing'>('hidden');
+  const [directLoanMode, setDirectLoanMode] = useState(false);
+  const [directLoanAmount, setDirectLoanAmount] = useState('');
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -196,6 +199,14 @@ export function CalculatorScreen() {
     }
   }
 
+  function handleModeToggle(enabled: boolean) {
+    setDirectLoanMode(enabled);
+    if (enabled) {
+      // Pre-fill with currently calculated loan amount
+      setDirectLoanAmount(loanAmount > 0 ? formatCZK(loanAmount) : '');
+    }
+  }
+
   // LTV warning text for the input field
   const ltvWarning = parseCzechNumber(form.ltvWarning) || 80;
   const ltvMax = parseCzechNumber(form.ltvMax) || 90;
@@ -210,7 +221,26 @@ export function CalculatorScreen() {
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
-      const input = parseForm(form);
+      let input: MortgageInput;
+      if (directLoanMode) {
+        const loan = parseCzechNumber(directLoanAmount);
+        input = {
+          propertyPrice: loan,
+          downPayment: 0,
+          loanAmount: loan,
+          annualInterestRate: parseCzechNumber(form.annualInterestRate),
+          fixationYears: form.fixationYears,
+          totalYears: form.totalYears,
+          paymentType: form.paymentType,
+          propertyInsuranceMonthly: parseCzechNumber(form.propertyInsuranceMonthly) || 0,
+          lifeInsuranceMonthly: parseCzechNumber(form.lifeInsuranceMonthly) || 0,
+          arrangementFee: parseCzechNumber(form.arrangementFee) || 0,
+          valuationFee: parseCzechNumber(form.valuationFee) || 0,
+        };
+      } else {
+        input = parseForm(form);
+      }
+
       const validationErrors = validateInputs(input);
       const errorMap: Record<string, string> = {};
       for (const e of validationErrors) errorMap[e.field] = e.message;
@@ -230,7 +260,7 @@ export function CalculatorScreen() {
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [form]);
+  }, [form, directLoanMode, directLoanAmount]);
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -289,39 +319,66 @@ export function CalculatorScreen() {
           <View style={[styles.card, { backgroundColor: c.surface }]}>
             <SectionHeader title="Parametry úvěru" />
 
-            <InputField
-              label="Cena nemovitosti"
-              value={form.propertyPrice}
-              onChangeText={handlePropertyPriceChange}
-              suffix="Kč"
-              error={errors.propertyPrice}
-            />
+            {/* Mode toggle */}
+            <View style={[styles.modeToggleRow, { borderColor: c.border, backgroundColor: c.surfaceContainer }]}>
+              <Text style={[styles.modeToggleLabel, { color: c.text }]}>
+                {directLoanMode ? 'Zadat výši úvěru přímo' : 'Znám výši úvěru'}
+              </Text>
+              <Switch
+                value={directLoanMode}
+                onValueChange={handleModeToggle}
+                trackColor={{ false: c.border, true: c.primary }}
+                thumbColor="#ffffff"
+              />
+            </View>
 
-            <InputField
-              label="Vlastní zdroje"
-              value={form.downPayment}
-              onChangeText={handleDownPaymentChange}
-              suffix="Kč"
-              error={errors.downPayment}
-            />
+            {!directLoanMode && (
+              <>
+                <InputField
+                  label="Cena nemovitosti"
+                  value={form.propertyPrice}
+                  onChangeText={handlePropertyPriceChange}
+                  suffix="Kč"
+                  error={errors.propertyPrice}
+                />
 
-            <InputField
-              label="LTV (podíl úvěru k ceně)"
-              value={ltvInput}
-              onChangeText={handleLtvChange}
-              suffix="%"
-              keyboardType="decimal-pad"
-              warning={ltv > ltvWarning && ltv <= ltvMax ? ltvWarningText : undefined}
-              error={ltv > ltvMax ? ltvWarningText : undefined}
-            />
+                <InputField
+                  label="Vlastní zdroje"
+                  value={form.downPayment}
+                  onChangeText={handleDownPaymentChange}
+                  suffix="Kč"
+                  error={errors.downPayment}
+                />
 
-            <InputField
-              label="Výše úvěru (automaticky)"
-              value={formatCZK(loanAmount)}
-              onChangeText={() => {}}
-              suffix="Kč"
-              autoCalculated
-            />
+                <InputField
+                  label="LTV (podíl úvěru k ceně)"
+                  value={ltvInput}
+                  onChangeText={handleLtvChange}
+                  suffix="%"
+                  keyboardType="decimal-pad"
+                  warning={ltv > ltvWarning && ltv <= ltvMax ? ltvWarningText : undefined}
+                  error={ltv > ltvMax ? ltvWarningText : undefined}
+                />
+
+                <InputField
+                  label="Výše úvěru (automaticky)"
+                  value={formatCZK(loanAmount)}
+                  onChangeText={() => {}}
+                  suffix="Kč"
+                  autoCalculated
+                />
+              </>
+            )}
+
+            {directLoanMode && (
+              <InputField
+                label="Výše úvěru"
+                value={directLoanAmount}
+                onChangeText={setDirectLoanAmount}
+                suffix="Kč"
+                error={errors.loanAmount}
+              />
+            )}
 
             <InputField
               label="Úroková sazba (ročně)"
@@ -696,6 +753,22 @@ function makeStyles(c: ThemeColors) {
       flexDirection: 'row',
       marginHorizontal: -4,
       marginBottom: 4,
+    },
+    modeToggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderWidth: 1,
+      borderRadius: 12,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      marginBottom: 16,
+    },
+    modeToggleLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      flex: 1,
+      marginRight: 12,
     },
     optionalToggle: {
       borderWidth: 1,
