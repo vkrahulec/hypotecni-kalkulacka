@@ -601,12 +601,16 @@ function HowToGuide({ c }: { c: ThemeColors }) {
 
   const steps = [
     {
+      title: 'Vyberte režim zadávání',
+      desc: 'V horní části formuláře najdete přepínač „Znám výši úvěru". Ve výchozím stavu (vypnuto) zadáváte cenu nemovitosti a vlastní zdroje — kalkulačka výši úvěru a LTV spočítá sama. Pokud znáte přesnou výši úvěru, přepínač zapněte a zadejte ji přímo — pole pro cenu nemovitosti a vlastní zdroje se skryjí.',
+    },
+    {
       title: 'Zadejte cenu nemovitosti',
-      desc: 'Do prvního pole vyplňte celkovou kupní cenu nemovitosti, kterou chcete koupit nebo postavit. Zadávejte cenu v korunách — oddělení tisíců mezerami je podporováno.',
+      desc: 'Do prvního pole vyplňte celkovou kupní cenu nemovitosti, kterou chcete koupit nebo postavit. Zadávejte cenu v korunách — oddělení tisíců mezerami je podporováno. (Pole se zobrazí pouze ve výchozím režimu.)',
     },
     {
       title: 'Nastavte výši vlastních zdrojů (akontace)',
-      desc: 'Zadejte, kolik peněz vkládáte z vlastních úspor. Kalkulačka automaticky vypočítá výši úvěru a ukazatel LTV. Čím vyšší akontace, tím nižší LTV a obvykle i lepší úroková sazba od banky.',
+      desc: 'Zadejte, kolik peněz vkládáte z vlastních úspor. Kalkulačka automaticky vypočítá výši úvěru a ukazatel LTV. Čím vyšší akontace, tím nižší LTV a obvykle i lepší úroková sazba od banky. (Pole se zobrazí pouze ve výchozím režimu.)',
     },
     {
       title: 'Zadejte úrokovou sazbu a dobu fixace',
