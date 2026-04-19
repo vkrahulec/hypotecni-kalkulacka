@@ -15,15 +15,22 @@ const COL_VALUE = 100;  // SPLÁTKA, JISTINA, ÚROK
 const COL_LAST  = 110;  // ZŮSTATEK
 const TABLE_WIDTH = COL_FIRST + COL_VALUE * 3 + COL_LAST; // 470
 
+const PAGE_SIZE = 12;
+
 export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
   const c = Colors[useScheme()];
   const [view, setView] = useState<'monthly' | 'yearly'>('yearly');
+  const [expanded, setExpanded] = useState(false);
   const s = makeStyles(c);
 
   const headers =
     view === 'monthly'
       ? ['Měsíc', 'Splátka', 'Jistina', 'Úrok', 'Zůstatek']
       : ['Rok', 'Celkem', 'Jistina', 'Úrok', 'Zůstatek'];
+
+  const allRows = view === 'monthly' ? monthly : yearly;
+  const visibleRows = expanded ? allRows : allRows.slice(0, PAGE_SIZE);
+  const hasMore = allRows.length > PAGE_SIZE;
 
   function renderMonthlyRow(row: AmortizationRow, idx: number) {
     return (
@@ -62,7 +69,7 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
                 ? { backgroundColor: c.primary, borderColor: c.primary }
                 : { backgroundColor: c.surfaceContainer, borderColor: c.border },
             ]}
-            onPress={() => setView(v)}
+            onPress={() => { setView(v); setExpanded(false); }}
             activeOpacity={0.75}
           >
             <Text style={[s.toggleText, { color: view === v ? c.onPrimary : c.textSecondary }]}>
@@ -96,16 +103,29 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
             ))}
           </View>
 
-          {/* Data rows — vertical ScrollView is cross-axis inside the horizontal one */}
-          <ScrollView style={s.rowsScroll} nestedScrollEnabled>
+          {/* Data rows rendered with map() — no inner ScrollView */}
+          <View>
             {view === 'monthly'
-              ? monthly.map((row, idx) => renderMonthlyRow(row, idx))
-              : yearly.map((row, idx) => renderYearlyRow(row, idx))}
-          </ScrollView>
+              ? (visibleRows as AmortizationRow[]).map((row, idx) => renderMonthlyRow(row, idx))
+              : (visibleRows as YearlyAmortizationRow[]).map((row, idx) => renderYearlyRow(row, idx))}
+          </View>
         </View>
       </ScrollView>
 
-      {/* Scroll hint */}
+      {/* Expand / collapse */}
+      {hasMore && (
+        <TouchableOpacity
+          onPress={() => setExpanded((v) => !v)}
+          style={[s.expandBtn, { borderTopColor: c.border, backgroundColor: c.surface }]}
+          activeOpacity={0.75}
+        >
+          <Text style={[s.expandText, { color: c.primary }]}>
+            {expanded ? 'Sbalit' : `Zobrazit vše (${allRows.length} řádků)`}
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Horizontal scroll hint */}
       <Text style={[s.hint, { color: c.textMuted, borderTopColor: c.border }]}>
         ← Posuňte pro více →
       </Text>
@@ -151,7 +171,12 @@ function makeStyles(c: ThemeColors) {
       textTransform: 'uppercase',
       paddingHorizontal: 4,
     },
-    rowsScroll: { maxHeight: 340 },
+    expandBtn: {
+      paddingVertical: 13,
+      alignItems: 'center',
+      borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    expandText: { fontSize: 13, fontWeight: '600' },
     row: {
       flexDirection: 'row',
       paddingVertical: 9,
