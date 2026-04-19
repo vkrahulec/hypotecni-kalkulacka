@@ -292,278 +292,274 @@ export function CalculatorScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Header ── */}
-          <View style={styles.header}>
-            <View style={styles.headerRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.appTitle, { color: c.primary }]}>Hypoteční kalkulačka</Text>
-                <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
-                  Výpočet splátky a přehled úvěru
-                </Text>
+              {/* ── Header ── */}
+              <View style={styles.header}>
+                <View style={styles.headerRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.appTitle, { color: c.primary }]}>Hypoteční kalkulačka</Text>
+                    <Text style={[styles.appSubtitle, { color: c.textSecondary }]}>
+                      Výpočet splátky a přehled úvěru
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={cycleTheme}
+                    style={({ pressed }) => [
+                      styles.themeChip,
+                      { backgroundColor: pressed ? c.primaryContainer : c.surfaceContainer, borderColor: c.border },
+                    ]}
+                  >
+                    <Text style={[styles.themeChipText, { color: c.primary }]}>
+                      {THEME_LABELS[themeOverride]}
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
-              <Pressable
-                onPress={cycleTheme}
-                style={({ pressed }) => [
-                  styles.themeChip,
-                  { backgroundColor: pressed ? c.primaryContainer : c.surfaceContainer, borderColor: c.border },
-                ]}
-              >
-                <Text style={[styles.themeChipText, { color: c.primary }]}>
-                  {THEME_LABELS[themeOverride]}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
 
-          {/* ── Input card ── */}
-          <View style={[styles.card, { backgroundColor: c.surface }]}>
-            <SectionHeader title="Parametry úvěru" />
+              {/* ── Input card ── */}
+              <View style={[styles.card, { backgroundColor: c.surface }]}>
+                <SectionHeader title="Parametry úvěru" />
 
-            {/* Mode toggle */}
-            <View style={[styles.modeToggleRow, { borderColor: c.border, backgroundColor: c.surfaceContainer }]}>
-              <Text style={[styles.modeToggleLabel, { color: c.text }]}>
-                {directLoanMode ? 'Zadat výši úvěru přímo' : 'Znám výši úvěru'}
-              </Text>
-              <Switch
-                value={directLoanMode}
-                onValueChange={handleModeToggle}
-                trackColor={{ false: c.border, true: c.primary }}
-                thumbColor="#ffffff"
-              />
-            </View>
+                <View style={[styles.modeToggleRow, { borderColor: c.border, backgroundColor: c.surfaceContainer }]}>
+                  <Text style={[styles.modeToggleLabel, { color: c.text }]}>
+                    {directLoanMode ? 'Zadat výši úvěru přímo' : 'Znám výši úvěru'}
+                  </Text>
+                  <Switch
+                    value={directLoanMode}
+                    onValueChange={handleModeToggle}
+                    trackColor={{ false: c.border, true: c.primary }}
+                    thumbColor="#ffffff"
+                  />
+                </View>
 
-            {!directLoanMode && (
-              <>
+                {!directLoanMode && (
+                  <>
+                    <InputField
+                      label="Cena nemovitosti"
+                      value={form.propertyPrice}
+                      onChangeText={handlePropertyPriceChange}
+                      suffix="Kč"
+                      error={errors.propertyPrice}
+                    />
+                    <InputField
+                      label="Vlastní zdroje"
+                      value={form.downPayment}
+                      onChangeText={handleDownPaymentChange}
+                      suffix="Kč"
+                      error={errors.downPayment}
+                    />
+                    <InputField
+                      label="LTV (podíl úvěru k ceně)"
+                      value={ltvInput}
+                      onChangeText={handleLtvChange}
+                      suffix="%"
+                      keyboardType="decimal-pad"
+                      warning={ltv > ltvWarning && ltv <= ltvMax ? ltvWarningText : undefined}
+                      error={ltv > ltvMax ? ltvWarningText : undefined}
+                    />
+                    <InputField
+                      label="Výše úvěru (automaticky)"
+                      value={formatCZK(loanAmount)}
+                      onChangeText={() => {}}
+                      suffix="Kč"
+                      autoCalculated
+                    />
+                  </>
+                )}
+
+                {directLoanMode && (
+                  <InputField
+                    label="Výše úvěru"
+                    value={directLoanAmount}
+                    onChangeText={setDirectLoanAmount}
+                    suffix="Kč"
+                    error={errors.loanAmount}
+                  />
+                )}
+
                 <InputField
-                  label="Cena nemovitosti"
-                  value={form.propertyPrice}
-                  onChangeText={handlePropertyPriceChange}
-                  suffix="Kč"
-                  error={errors.propertyPrice}
-                />
-
-                <InputField
-                  label="Vlastní zdroje"
-                  value={form.downPayment}
-                  onChangeText={handleDownPaymentChange}
-                  suffix="Kč"
-                  error={errors.downPayment}
-                />
-
-                <InputField
-                  label="LTV (podíl úvěru k ceně)"
-                  value={ltvInput}
-                  onChangeText={handleLtvChange}
+                  label="Úroková sazba (ročně)"
+                  value={form.annualInterestRate}
+                  onChangeText={(v) => setField('annualInterestRate', v)}
                   suffix="%"
                   keyboardType="decimal-pad"
-                  warning={ltv > ltvWarning && ltv <= ltvMax ? ltvWarningText : undefined}
-                  error={ltv > ltvMax ? ltvWarningText : undefined}
+                  error={errors.annualInterestRate}
                 />
 
-                <InputField
-                  label="Výše úvěru (automaticky)"
-                  value={formatCZK(loanAmount)}
-                  onChangeText={() => {}}
-                  suffix="Kč"
-                  autoCalculated
+                <SegmentedControl
+                  label="Délka fixace"
+                  options={FIXATION_OPTIONS_UI}
+                  value={form.fixationYears}
+                  onChange={(v) => setField('fixationYears', v)}
                 />
-              </>
-            )}
 
-            {directLoanMode && (
-              <InputField
-                label="Výše úvěru"
-                value={directLoanAmount}
-                onChangeText={setDirectLoanAmount}
-                suffix="Kč"
-                error={errors.loanAmount}
-              />
-            )}
-
-            <InputField
-              label="Úroková sazba (ročně)"
-              value={form.annualInterestRate}
-              onChangeText={(v) => setField('annualInterestRate', v)}
-              suffix="%"
-              keyboardType="decimal-pad"
-              error={errors.annualInterestRate}
-            />
-
-            <SegmentedControl
-              label="Délka fixace"
-              options={FIXATION_OPTIONS_UI}
-              value={form.fixationYears}
-              onChange={(v) => setField('fixationYears', v)}
-            />
-
-            <View style={styles.sliderContainer}>
-              <View style={styles.sliderHeader}>
-                <Text style={[styles.sliderLabel, { color: c.textSecondary }]}>Doba splácení</Text>
-                <View style={[styles.sliderValueBadge, { backgroundColor: c.primaryContainer }]}>
-                  <Text style={[styles.sliderValueText, { color: c.primary }]}>{form.totalYears} let</Text>
-                </View>
-              </View>
-              <Slider
-                value={form.totalYears}
-                onValueChange={(v) => setField('totalYears', Math.round(v))}
-                minimumValue={MIN_REPAYMENT_YEARS}
-                maximumValue={MAX_REPAYMENT_YEARS}
-                step={1}
-                minimumTrackTintColor={c.primary}
-                maximumTrackTintColor={c.border}
-                thumbTintColor={c.primary}
-                style={styles.slider}
-              />
-              <View style={styles.sliderTicks}>
-                <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MIN_REPAYMENT_YEARS} r.</Text>
-                {[10, 15, 20, 25, 30, 35].map((y) => (
-                  <Text key={y} style={[styles.sliderTick, { color: c.textMuted }]}>{y}</Text>
-                ))}
-                <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MAX_REPAYMENT_YEARS} r.</Text>
-              </View>
-            </View>
-
-            <SegmentedControl
-              label="Typ splácení"
-              options={PAYMENT_TYPE_OPTIONS}
-              value={form.paymentType}
-              onChange={(v) => setField('paymentType', v)}
-            />
-          </View>
-
-          {/* ── Optional costs ── */}
-          <TouchableOpacity
-            onPress={() => setShowOptional((v) => !v)}
-            style={[styles.optionalToggle, { backgroundColor: c.surfaceContainer, borderColor: c.border }]}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.optionalToggleIcon, { color: c.primary }]}>
-              {showOptional ? '▲' : '▼'}
-            </Text>
-            <Text style={[styles.optionalToggleText, { color: c.primary }]}>
-              {showOptional ? 'Skrýt pojištění a poplatky' : 'Pojištění a poplatky (volitelné)'}
-            </Text>
-          </TouchableOpacity>
-
-          {showOptional && (
-            <View style={[styles.card, { backgroundColor: c.surface }]}>
-              <InputField
-                label="Pojištění nemovitosti"
-                value={form.propertyInsuranceMonthly}
-                onChangeText={(v) => setField('propertyInsuranceMonthly', v)}
-                suffix="Kč/měs."
-                hint="Volitelné — zahrne se do celkových nákladů"
-                error={errors.propertyInsuranceMonthly}
-              />
-              <InputField
-                label="Životní pojištění"
-                value={form.lifeInsuranceMonthly}
-                onChangeText={(v) => setField('lifeInsuranceMonthly', v)}
-                suffix="Kč/měs."
-                hint="Volitelné"
-                error={errors.lifeInsuranceMonthly}
-              />
-              <InputField
-                label="Poplatek za zpracování"
-                value={form.arrangementFee}
-                onChangeText={(v) => setField('arrangementFee', v)}
-                suffix="Kč"
-                hint="Jednorázový poplatek bance"
-                error={errors.arrangementFee}
-              />
-              <InputField
-                label="Poplatek za odhad nemovitosti"
-                value={form.valuationFee}
-                onChangeText={(v) => setField('valuationFee', v)}
-                suffix="Kč"
-                hint="Jednorázový"
-                error={errors.valuationFee}
-              />
-              <InputField
-                label="LTV — hranice upozornění"
-                value={form.ltvWarning}
-                onChangeText={(v) => setField('ltvWarning', v)}
-                suffix="%"
-                keyboardType="decimal-pad"
-                hint="Výchozí: 80 %"
-              />
-              <InputField
-                label="LTV — hranice zamítnutí"
-                value={form.ltvMax}
-                onChangeText={(v) => setField('ltvMax', v)}
-                suffix="%"
-                keyboardType="decimal-pad"
-                hint="Výchozí: 90 %"
-              />
-            </View>
-          )}
-
-          {/* ── Loading ── */}
-          {loading && (
-            <View style={styles.loadingRow}>
-              <ActivityIndicator color={c.primary} />
-            </View>
-          )}
-
-          {/* ── Results ── */}
-          {result && !loading && (
-            <>
-              {/* Summary cards */}
-              <View style={[styles.card, { backgroundColor: c.surface }]}>
-                <SectionHeader title="Výsledky výpočtu" />
-                <View style={styles.cardsRow}>
-                  <ResultCard
-                    title="Měsíční splátka"
-                    value={result.monthlyPayment}
-                    accent
-                    subtitle={
-                      form.paymentType === 'progressive'
-                        ? 'první splátka (progresivní)'
-                        : 'anuitní splátka'
-                    }
+                <View style={styles.sliderContainer}>
+                  <View style={styles.sliderHeader}>
+                    <Text style={[styles.sliderLabel, { color: c.textSecondary }]}>Doba splácení</Text>
+                    <View style={[styles.sliderValueBadge, { backgroundColor: c.primaryContainer }]}>
+                      <Text style={[styles.sliderValueText, { color: c.primary }]}>{form.totalYears} let</Text>
+                    </View>
+                  </View>
+                  <Slider
+                    value={form.totalYears}
+                    onValueChange={(v) => setField('totalYears', Math.round(v))}
+                    minimumValue={MIN_REPAYMENT_YEARS}
+                    maximumValue={MAX_REPAYMENT_YEARS}
+                    step={1}
+                    minimumTrackTintColor={c.primary}
+                    maximumTrackTintColor={c.border}
+                    thumbTintColor={c.primary}
+                    style={styles.slider}
                   />
-                  <ResultCard title="Celkem zaplaceno" value={result.totalPaid} />
+                  <View style={styles.sliderTicks}>
+                    <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MIN_REPAYMENT_YEARS} r.</Text>
+                    {[10, 15, 20, 25, 30, 35].map((y) => (
+                      <Text key={y} style={[styles.sliderTick, { color: c.textMuted }]}>{y}</Text>
+                    ))}
+                    <Text style={[styles.sliderTick, { color: c.textMuted }]}>{MAX_REPAYMENT_YEARS} r.</Text>
+                  </View>
                 </View>
-                <View style={styles.cardsRow}>
-                  <ResultCard title="Celkem úroky" value={result.totalInterest} warning />
-                  <ResultCard
-                    title="Celkové náklady"
-                    value={result.totalCostWithExtras}
-                    subtitle="vč. pojištění a poplatků"
-                  />
-                </View>
+
+                <SegmentedControl
+                  label="Typ splácení"
+                  options={PAYMENT_TYPE_OPTIONS}
+                  value={form.paymentType}
+                  onChange={(v) => setField('paymentType', v)}
+                />
               </View>
 
-              {/* Charts */}
+              {/* ── Optional costs ── */}
               <TouchableOpacity
-                onPress={() => setShowCharts((v) => !v)}
+                onPress={() => setShowOptional((v) => !v)}
                 style={[styles.optionalToggle, { backgroundColor: c.surfaceContainer, borderColor: c.border }]}
                 activeOpacity={0.75}
               >
                 <Text style={[styles.optionalToggleIcon, { color: c.primary }]}>
-                  {showCharts ? '▲' : '▼'}
+                  {showOptional ? '▲' : '▼'}
                 </Text>
                 <Text style={[styles.optionalToggleText, { color: c.primary }]}>
-                  {showCharts ? 'Skrýt grafy' : 'Zobrazit grafy'}
+                  {showOptional ? 'Skrýt pojištění a poplatky' : 'Pojištění a poplatky (volitelné)'}
                 </Text>
               </TouchableOpacity>
 
-              {showCharts && (
+              {showOptional && (
                 <View style={[styles.card, { backgroundColor: c.surface }]}>
-                  <Charts yearly={result.yearlyAmortizationTable} />
+                  <InputField
+                    label="Pojištění nemovitosti"
+                    value={form.propertyInsuranceMonthly}
+                    onChangeText={(v) => setField('propertyInsuranceMonthly', v)}
+                    suffix="Kč/měs."
+                    hint="Volitelné — zahrne se do celkových nákladů"
+                    error={errors.propertyInsuranceMonthly}
+                  />
+                  <InputField
+                    label="Životní pojištění"
+                    value={form.lifeInsuranceMonthly}
+                    onChangeText={(v) => setField('lifeInsuranceMonthly', v)}
+                    suffix="Kč/měs."
+                    hint="Volitelné"
+                    error={errors.lifeInsuranceMonthly}
+                  />
+                  <InputField
+                    label="Poplatek za zpracování"
+                    value={form.arrangementFee}
+                    onChangeText={(v) => setField('arrangementFee', v)}
+                    suffix="Kč"
+                    hint="Jednorázový poplatek bance"
+                    error={errors.arrangementFee}
+                  />
+                  <InputField
+                    label="Poplatek za odhad nemovitosti"
+                    value={form.valuationFee}
+                    onChangeText={(v) => setField('valuationFee', v)}
+                    suffix="Kč"
+                    hint="Jednorázový"
+                    error={errors.valuationFee}
+                  />
+                  <InputField
+                    label="LTV — hranice upozornění"
+                    value={form.ltvWarning}
+                    onChangeText={(v) => setField('ltvWarning', v)}
+                    suffix="%"
+                    keyboardType="decimal-pad"
+                    hint="Výchozí: 80 %"
+                  />
+                  <InputField
+                    label="LTV — hranice zamítnutí"
+                    value={form.ltvMax}
+                    onChangeText={(v) => setField('ltvMax', v)}
+                    suffix="%"
+                    keyboardType="decimal-pad"
+                    hint="Výchozí: 90 %"
+                  />
                 </View>
               )}
 
-              {/* Amortization table */}
-              <View style={[styles.card, { backgroundColor: c.surface }]}>
-                <SectionHeader title="Splátkový kalendář" />
-                <AmortizationTable
-                  monthly={result.amortizationTable}
-                  yearly={result.yearlyAmortizationTable}
-                />
-              </View>
-            </>
-          )}
+              {/* ── Loading ── */}
+              {loading && (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator color={c.primary} />
+                </View>
+              )}
+
+              {/* ── Results ── */}
+              {result && !loading && (
+                <>
+                  {/* Summary cards */}
+                  <View style={[styles.card, { backgroundColor: c.surface }]}>
+                    <SectionHeader title="Výsledky výpočtu" />
+                    <View style={styles.cardsRow}>
+                      <ResultCard
+                        title="Měsíční splátka"
+                        value={result.monthlyPayment}
+                        accent
+                        subtitle={
+                          form.paymentType === 'progressive'
+                            ? 'první splátka (progresivní)'
+                            : 'anuitní splátka'
+                        }
+                      />
+                      <ResultCard title="Celkem zaplaceno" value={result.totalPaid} />
+                    </View>
+                    <View style={styles.cardsRow}>
+                      <ResultCard title="Celkem úroky" value={result.totalInterest} warning />
+                      <ResultCard
+                        title="Celkové náklady"
+                        value={result.totalCostWithExtras}
+                        subtitle="vč. pojištění a poplatků"
+                      />
+                    </View>
+                  </View>
+
+                  {/* Charts toggle */}
+                  <TouchableOpacity
+                    onPress={() => setShowCharts((v) => !v)}
+                    style={[styles.optionalToggle, { backgroundColor: c.surfaceContainer, borderColor: c.border }]}
+                    activeOpacity={0.75}
+                  >
+                    <Text style={[styles.optionalToggleIcon, { color: c.primary }]}>
+                      {showCharts ? '▲' : '▼'}
+                    </Text>
+                    <Text style={[styles.optionalToggleText, { color: c.primary }]}>
+                      {showCharts ? 'Skrýt grafy' : 'Zobrazit grafy'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {showCharts && (
+                    <View style={[styles.card, { backgroundColor: c.surface }]}>
+                      <Charts yearly={result.yearlyAmortizationTable} />
+                    </View>
+                  )}
+
+                  {/* Amortization table */}
+                  <View style={[styles.card, { backgroundColor: c.surface }]}>
+                    <SectionHeader title="Splátkový kalendář" />
+                    <AmortizationTable
+                      monthly={result.amortizationTable}
+                      yearly={result.yearlyAmortizationTable}
+                    />
+                  </View>
+                </>
+              )}
 
           {Platform.OS === 'web' && <HowToGuide c={c} />}
           {Platform.OS === 'web' && <Footer />}
