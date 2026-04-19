@@ -267,7 +267,7 @@ export function CalculatorScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: c.background }]} edges={Platform.OS === 'web' ? ['top', 'left', 'right', 'bottom'] : ['top', 'left', 'right']}>
       {Platform.OS === 'web' && <NavBar />}
 
       {Platform.OS === 'web' && pullState !== 'hidden' && (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useScheme } from './src/context/ThemeContext';
@@ -9,6 +10,10 @@ import { AboutScreen } from './src/screens/AboutScreen';
 import { ContactScreen } from './src/screens/ContactScreen';
 import { MortgageTypesScreen } from './src/screens/MortgageTypesScreen';
 import { ArticlesScreen } from './src/screens/ArticlesScreen';
+import { HelpScreen } from './src/screens/HelpScreen';
+import { BottomTabBar } from './src/components/BottomTabBar';
+
+const BOTTOM_TAB_ROUTES = ['/', '/napoveda'];
 
 function AppInner() {
   const scheme = useScheme();
@@ -20,13 +25,17 @@ function AppInner() {
   else if (route === '/kontakt') screen = <ContactScreen />;
   else if (route === '/typy-hypotek') screen = <MortgageTypesScreen />;
   else if (route === '/clanky') screen = <ArticlesScreen />;
+  else if (route === '/napoveda') screen = <HelpScreen />;
   else screen = <CalculatorScreen />;
 
+  const showBottomTabs = Platform.OS !== 'web' && BOTTOM_TAB_ROUTES.includes(route);
+
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      {screen}
-    </>
+      <View style={{ flex: 1 }}>{screen}</View>
+      {showBottomTabs && <BottomTabBar />}
+    </View>
   );
 }
 
