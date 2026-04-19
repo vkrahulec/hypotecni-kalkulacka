@@ -7,6 +7,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
   ActivityIndicator,
   Pressable,
   Switch,
@@ -285,6 +287,7 @@ export function CalculatorScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
           nativeID="main-scroll"
           style={styles.scroll}
@@ -565,6 +568,7 @@ export function CalculatorScreen() {
           {Platform.OS === 'web' && <Footer />}
           <View style={{ height: 32 }} />
         </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
       {/* Ad banner fixed at bottom */}

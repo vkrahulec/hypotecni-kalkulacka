@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
 import { useScheme } from '../context/ThemeContext';
+import { parseCzechNumber, formatCZK } from '../utils/formatting';
 
 interface InputFieldProps {
   label: string;
@@ -36,7 +37,38 @@ export function InputField({
 }: InputFieldProps) {
   const c = Colors[useScheme()];
   const [focused, setFocused] = useState(false);
+  // editValue is non-null only while the field is focused (holds the raw editing string)
+  const [editValue, setEditValue] = useState<string | null>(null);
   const styles = makeStyles(c, focused, !!error, !!warning, autoCalculated);
+
+  // Amount fields (Kč) use numeric keyboard; percent/decimal fields use decimal-pad.
+  // Only format amount fields — don't reformat things like "5,49 %".
+  const isAmountField = keyboardType !== 'decimal-pad' && !autoCalculated && editable;
+
+  const displayValue = editValue !== null ? editValue : value;
+
+  function handleFocus() {
+    setFocused(true);
+    if (isAmountField) {
+      // Strip thousand-separator spaces so the user edits a plain number
+      setEditValue(value.replace(/[\s\u00a0]/g, ''));
+    }
+  }
+
+  function handleChangeText(text: string) {
+    if (isAmountField) setEditValue(text);
+    onChangeText(text);
+  }
+
+  function handleBlur() {
+    setFocused(false);
+    if (isAmountField && editValue !== null) {
+      const n = parseCzechNumber(editValue);
+      const formatted = editValue.trim() === '' ? '' : n > 0 ? formatCZK(n) : editValue;
+      setEditValue(null);
+      onChangeText(formatted);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -44,12 +76,12 @@ export function InputField({
       <View style={styles.inputRow}>
         <TextInput
           style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
+          value={displayValue}
+          onChangeText={handleChangeText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           keyboardType={keyboardType}
           editable={editable && !autoCalculated}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
           placeholderTextColor={c.textMuted}
           selectTextOnFocus
         />
