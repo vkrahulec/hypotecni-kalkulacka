@@ -3,7 +3,10 @@
     "name": "Hypoteční kalkulačka",
     "slug": "hypotecni-kalkulacka",
     "version": "1.0.0",
-    "platforms": ["android", "web"],
+    "platforms": [
+      "android",
+      "web"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -45,6 +48,11 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "089b25ad-0725-46a7-a0dd-28fcd46f2afd"
+      }
+    }
   }
 }

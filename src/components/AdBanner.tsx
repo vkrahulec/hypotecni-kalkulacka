@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { Colors } from '../constants/colors';
 import { ADMOB_BANNER_UNIT_ID } from '../constants/config';
 import { useScheme } from '../context/ThemeContext';
@@ -9,6 +8,13 @@ import { useScheme } from '../context/ThemeContext';
 // On web the bundler picks AdBanner.web.tsx instead — this file is never bundled for web.
 export function AdBanner() {
   const c = Colors[useScheme()];
+
+  if (__DEV__) {
+    return <View style={[styles.container, { backgroundColor: c.adBackground }]} />;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { BannerAd, BannerAdSize } = require('react-native-google-mobile-ads');
 
   return (
     <View style={[styles.container, { backgroundColor: c.adBackground }]}>
