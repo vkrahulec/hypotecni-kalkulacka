@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
 import { Colors, ThemeColors } from '../constants/colors';
 import { useScheme } from '../context/ThemeContext';
 import { AmortizationRow, YearlyAmortizationRow } from '../utils/calculator';
@@ -19,6 +19,8 @@ const PAGE_SIZE = 12;
 
 export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
   const c = Colors[useScheme()];
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width > 768;
   const [view, setView] = useState<'monthly' | 'yearly'>('yearly');
   const [expanded, setExpanded] = useState(false);
   const s = makeStyles(c);
@@ -32,14 +34,18 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
   const visibleRows = expanded ? allRows : allRows.slice(0, PAGE_SIZE);
   const hasMore = allRows.length > PAGE_SIZE;
 
+  const cellFirst = isDesktop ? [s.cellFirst, s.cellFirstFlex] : s.cellFirst;
+  const cell = isDesktop ? [s.cell, s.cellFlex] : s.cell;
+  const cellLast = isDesktop ? [s.cellLast, s.cellLastFlex] : s.cellLast;
+
   function renderMonthlyRow(row: AmortizationRow, idx: number) {
     return (
       <View key={row.month} style={[s.row, idx % 2 !== 0 && { backgroundColor: c.surfaceContainer }]}>
-        <Text style={[s.cellFirst, { color: c.text }]} numberOfLines={1}>{row.month}</Text>
-        <Text style={[s.cell, { color: c.text }]} numberOfLines={1}>{formatCZK(row.payment)}</Text>
-        <Text style={[s.cell, { color: c.chartPrincipal }]} numberOfLines={1}>{formatCZK(row.principal)}</Text>
-        <Text style={[s.cell, { color: c.chartInterest }]} numberOfLines={1}>{formatCZK(row.interest)}</Text>
-        <Text style={[s.cellLast, { color: c.textSecondary }]} numberOfLines={1}>{formatCZK(row.remainingBalance)}</Text>
+        <Text style={[cellFirst, { color: c.text }]} numberOfLines={1}>{row.month}</Text>
+        <Text style={[cell, { color: c.text }]} numberOfLines={1}>{formatCZK(row.payment)}</Text>
+        <Text style={[cell, { color: c.chartPrincipal }]} numberOfLines={1}>{formatCZK(row.principal)}</Text>
+        <Text style={[cell, { color: c.chartInterest }]} numberOfLines={1}>{formatCZK(row.interest)}</Text>
+        <Text style={[cellLast, { color: c.textSecondary }]} numberOfLines={1}>{formatCZK(row.remainingBalance)}</Text>
       </View>
     );
   }
@@ -47,11 +53,11 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
   function renderYearlyRow(row: YearlyAmortizationRow, idx: number) {
     return (
       <View key={row.year} style={[s.row, idx % 2 !== 0 && { backgroundColor: c.surfaceContainer }]}>
-        <Text style={[s.cellFirst, { color: c.text }]} numberOfLines={1}>{row.year}</Text>
-        <Text style={[s.cell, { color: c.text }]} numberOfLines={1}>{formatCZK(row.totalPayment)}</Text>
-        <Text style={[s.cell, { color: c.chartPrincipal }]} numberOfLines={1}>{formatCZK(row.totalPrincipal)}</Text>
-        <Text style={[s.cell, { color: c.chartInterest }]} numberOfLines={1}>{formatCZK(row.totalInterest)}</Text>
-        <Text style={[s.cellLast, { color: c.textSecondary }]} numberOfLines={1}>{formatCZK(row.remainingBalance)}</Text>
+        <Text style={[cellFirst, { color: c.text }]} numberOfLines={1}>{row.year}</Text>
+        <Text style={[cell, { color: c.text }]} numberOfLines={1}>{formatCZK(row.totalPayment)}</Text>
+        <Text style={[cell, { color: c.chartPrincipal }]} numberOfLines={1}>{formatCZK(row.totalPrincipal)}</Text>
+        <Text style={[cell, { color: c.chartInterest }]} numberOfLines={1}>{formatCZK(row.totalInterest)}</Text>
+        <Text style={[cellLast, { color: c.textSecondary }]} numberOfLines={1}>{formatCZK(row.remainingBalance)}</Text>
       </View>
     );
   }
@@ -79,10 +85,9 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
         ))}
       </View>
 
-      {/* Single horizontal ScrollView keeps header + rows in sync */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false}>
-        <View style={{ width: TABLE_WIDTH }}>
-          {/* Column headers */}
+      {/* Header + rows: full-width flex on desktop, horizontal scroll on mobile */}
+      {isDesktop ? (
+        <View>
           <View style={s.headerRow}>
             {headers.map((h, i) => (
               <Text
@@ -91,26 +96,49 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
                 style={[
                   s.headerCell,
                   { color: c.textSecondary },
-                  i === 0
-                    ? { width: COL_FIRST, textAlign: 'center' }
-                    : i === headers.length - 1
-                    ? { width: COL_LAST, textAlign: 'right' }
-                    : { width: COL_VALUE, textAlign: 'right' },
+                  i === 0 ? s.headerCellFirst : i === headers.length - 1 ? s.headerCellLast : s.headerCellMid,
                 ]}
               >
                 {h}
               </Text>
             ))}
           </View>
-
-          {/* Data rows rendered with map() — no inner ScrollView */}
           <View>
             {view === 'monthly'
               ? (visibleRows as AmortizationRow[]).map((row, idx) => renderMonthlyRow(row, idx))
               : (visibleRows as YearlyAmortizationRow[]).map((row, idx) => renderYearlyRow(row, idx))}
           </View>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false}>
+          <View style={{ width: TABLE_WIDTH }}>
+            <View style={s.headerRow}>
+              {headers.map((h, i) => (
+                <Text
+                  key={h}
+                  numberOfLines={1}
+                  style={[
+                    s.headerCell,
+                    { color: c.textSecondary },
+                    i === 0
+                      ? { width: COL_FIRST, textAlign: 'center' }
+                      : i === headers.length - 1
+                      ? { width: COL_LAST, textAlign: 'right' }
+                      : { width: COL_VALUE, textAlign: 'right' },
+                  ]}
+                >
+                  {h}
+                </Text>
+              ))}
+            </View>
+            <View>
+              {view === 'monthly'
+                ? (visibleRows as AmortizationRow[]).map((row, idx) => renderMonthlyRow(row, idx))
+                : (visibleRows as YearlyAmortizationRow[]).map((row, idx) => renderYearlyRow(row, idx))}
+            </View>
+          </View>
+        </ScrollView>
+      )}
 
       {/* Expand / collapse */}
       {hasMore && (
@@ -125,10 +153,12 @@ export function AmortizationTable({ monthly, yearly }: AmortizationTableProps) {
         </TouchableOpacity>
       )}
 
-      {/* Horizontal scroll hint */}
-      <Text style={[s.hint, { color: c.textMuted, borderTopColor: c.border }]}>
-        ← Posuňte pro více →
-      </Text>
+      {/* Horizontal scroll hint — mobile only */}
+      {!isDesktop && (
+        <Text style={[s.hint, { color: c.textMuted, borderTopColor: c.border }]}>
+          ← Posuňte pro více →
+        </Text>
+      )}
     </View>
   );
 }
@@ -192,11 +222,20 @@ function makeStyles(c: ThemeColors) {
       textAlign: 'center',
       paddingHorizontal: 4,
     },
+    cellFirstFlex: {
+      width: undefined,
+      flex: 1,
+      textAlign: 'left',
+    },
     cell: {
       width: COL_VALUE,
       fontSize: 13,
       textAlign: 'right',
       paddingHorizontal: 4,
+    },
+    cellFlex: {
+      width: undefined,
+      flex: 2,
     },
     cellLast: {
       width: COL_LAST,
@@ -204,6 +243,13 @@ function makeStyles(c: ThemeColors) {
       textAlign: 'right',
       paddingHorizontal: 4,
     },
+    cellLastFlex: {
+      width: undefined,
+      flex: 2,
+    },
+    headerCellFirst: { flex: 1, textAlign: 'left' },
+    headerCellMid: { flex: 2, textAlign: 'right' },
+    headerCellLast: { flex: 2, textAlign: 'right' },
     hint: {
       fontSize: 11,
       textAlign: 'center',
