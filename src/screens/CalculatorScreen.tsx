@@ -7,8 +7,6 @@ import {
   Platform,
   KeyboardAvoidingView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  Keyboard,
   ActivityIndicator,
   Pressable,
   Switch,
@@ -97,14 +95,6 @@ function parseForm(form: FormState): MortgageInput {
 const THEME_CYCLE: ThemeOverride[] = ['system', 'light', 'dark'];
 const THEME_LABELS: Record<ThemeOverride, string> = { system: 'Auto', light: 'Světlý', dark: 'Tmavý' };
 
-function DismissKeyboard({ children }: { children: React.ReactNode }) {
-  if (Platform.OS === 'web') return <>{children}</>;
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ flex: 1 }}>{children}</View>
-    </TouchableWithoutFeedback>
-  );
-}
 
 export function CalculatorScreen() {
   const scheme = useScheme();
@@ -296,12 +286,12 @@ export function CalculatorScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <DismissKeyboard>
         <ScrollView
           nativeID="main-scroll"
           style={styles.scroll}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
         >
               {/* ── Header ── */}
@@ -577,7 +567,6 @@ export function CalculatorScreen() {
           {Platform.OS === 'web' && <Footer />}
           <View style={{ height: 32 }} />
         </ScrollView>
-        </DismissKeyboard>
       </KeyboardAvoidingView>
 
       {/* Ad banner fixed at bottom */}
