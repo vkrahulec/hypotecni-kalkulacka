@@ -563,7 +563,14 @@ export function CalculatorScreen() {
                 </>
               )}
 
-          {Platform.OS === 'web' && <HowToGuide c={c} />}
+          {Platform.OS === 'web' && (
+            <>
+              <HowToGuide c={c} />
+              <MortgageInfoSection c={c} />
+              <ApplicantGuideSection c={c} />
+              <FAQSection c={c} />
+            </>
+          )}
           {Platform.OS === 'web' && <Footer />}
           <View style={{ height: 32 }} />
         </ScrollView>
@@ -674,6 +681,212 @@ function HowToGuide({ c }: { c: ThemeColors }) {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+// ── Mortgage info section (web only) ─────────────────────────────────────────
+function MortgageInfoSection({ c }: { c: ThemeColors }) {
+  const gs = StyleSheet.create({
+    card: { backgroundColor: c.surface, borderRadius: 16, padding: 20, marginBottom: 16 },
+    h2: { fontSize: 18, fontWeight: '800', color: c.text, marginBottom: 16, letterSpacing: -0.3 },
+    h3: { fontSize: 15, fontWeight: '700', color: c.primary, marginBottom: 6 },
+    p: { fontSize: 14, lineHeight: 22, color: c.textSecondary, marginBottom: 14 },
+  });
+
+  return (
+    <View style={gs.card}>
+      <Text style={gs.h2}>Jak funguje hypotéka</Text>
+
+      <Text style={gs.p}>
+        Hypotéka je dlouhodobý bankovní úvěr, který slouží k financování koupě, výstavby nebo rekonstrukce nemovitosti.
+        Na rozdíl od jiných úvěrů je hypotéka zajištěna zástavním právem k nemovitosti — banka se tak chrání pro případ,
+        že dlužník přestane splácet. Hypotéka patří mezi nejdůležitější finanční rozhodnutí v životě, proto je klíčové
+        dobře porozumět všem jejím parametrům dříve, než smlouvu podepíšete.
+      </Text>
+
+      <Text style={gs.h3}>Jistina a úrok</Text>
+      <Text style={gs.p}>
+        Jistina (principal) je samotná vypůjčená částka — tedy rozdíl mezi cenou nemovitosti a vaším vlastním vkladem.
+        Úrok je cena za zapůjčení peněz, vyjádřená jako procento z nesplacené jistiny ročně. V každé splátce platíte
+        zároveň část jistiny i část úroku. Na začátku splácení tvoří úroky větší podíl splátky, postupně s ubývající
+        jistinou klesá i absolutní výše úroku. Na konci doby splácení jde skoro celá splátka na splacení jistiny —
+        to je podstata anuitního splácení.
+      </Text>
+
+      <Text style={gs.h3}>LTV — poměr úvěru k hodnotě nemovitosti</Text>
+      <Text style={gs.p}>
+        LTV (Loan to Value) vyjadřuje, jak velký podíl z hodnoty nemovitosti financujete úvěrem. Při ceně nemovitosti
+        4 000 000 Kč a úvěru 3 200 000 Kč je LTV 80 %. Česká národní banka (ČNB) reguluje maximální LTV: banky nesmí
+        poskytovat hypotéky s LTV nad 90 %, přičemž hypotéky s LTV nad 80 % jsou omezeny na určitý podíl nové produkce.
+        Nižší LTV zpravidla znamená nižší úrokovou sazbu, protože banka podstupuje nižší riziko. Snížením LTV pod 80 %
+        nebo pod 70 % můžete získat výrazně výhodnější nabídku.
+      </Text>
+
+      <Text style={gs.h3}>Fixace úrokové sazby</Text>
+      <Text style={gs.p}>
+        Fixace je smluvně garantované období, po které se nemění vaše úroková sazba — bez ohledu na vývoj trhu.
+        Typicky si volíte mezi 1, 3, 5 nebo 7 lety. Delší fixace přináší jistotu stejné splátky na delší dobu, ale
+        obvykle za cenu o něco vyšší sazby. Kratší fixace může být výhodná v prostředí klesajících sazeb, protože po
+        skončení fixace máte možnost refinancovat za lepších podmínek. Po skončení fixace banka nabídne novou sazbu
+        odpovídající aktuálním tržním podmínkám.
+      </Text>
+
+      <Text style={gs.h3}>Anuitní vs. progresivní splácení</Text>
+      <Text style={gs.p}>
+        Anuitní splácení je nejrozšířenější forma: výše splátky se po celou dobu fixace nemění, mění se pouze poměr
+        jistiny a úroku v každé splátce. Progresivní splácení začíná na nižší měsíční splátce, která se každý rok
+        zvyšuje. Je vhodné pro žadatele, kteří teprve budují kariéru a očekávají růst příjmů. Celková zaplacená částka
+        bývá u progresivního splácení o něco vyšší, protože jistina se na začátku splácí pomaleji.
+      </Text>
+
+      <Text style={gs.h3}>Co ovlivňuje výši měsíční splátky</Text>
+      <Text style={gs.p}>
+        Na výši měsíční splátky působí čtyři klíčové faktory: výše úvěru (čím vyšší jistina, tím vyšší splátka),
+        úroková sazba (každé půlprocento tvoří u průměrné hypotéky stovky korun měsíčně), doba splácení (delší období
+        znamená nižší splátku, ale celkově zaplatíte více na úrocích — optimum bývá 20–25 let) a typ splácení.
+        Celkové náklady hypotéky zahrnují také poplatky za sjednání úvěru, odhad nemovitosti, vedení účtu a pojištění.
+        Vždy si nechte předložit RPSN (roční procentní sazbu nákladů), která zahrnuje veškeré náklady a umožňuje
+        objektivní srovnání různých nabídek od různých bank.
+      </Text>
+    </View>
+  );
+}
+
+// ── Applicant guide section (web only) ───────────────────────────────────────
+function ApplicantGuideSection({ c }: { c: ThemeColors }) {
+  const gs = StyleSheet.create({
+    card: { backgroundColor: c.surface, borderRadius: 16, padding: 20, marginBottom: 16 },
+    h2: { fontSize: 18, fontWeight: '800', color: c.text, marginBottom: 16, letterSpacing: -0.3 },
+    stepRow: { flexDirection: 'row', marginBottom: 16, gap: 14 },
+    badge: {
+      width: 28, height: 28, borderRadius: 14,
+      backgroundColor: c.primary, alignItems: 'center', justifyContent: 'center',
+      marginTop: 1, flexShrink: 0,
+    },
+    badgeText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+    stepBody: { flex: 1 },
+    stepTitle: { fontSize: 14, fontWeight: '700', color: c.text, marginBottom: 3 },
+    stepDesc: { fontSize: 14, lineHeight: 21, color: c.textSecondary },
+  });
+
+  const steps = [
+    {
+      title: 'Zhodnoťte svou finanční situaci',
+      desc: 'Před podáním žádosti si spočítejte, kolik si můžete dovolit splácet. Obecné pravidlo říká, že splátka hypotéky by neměla přesáhnout 40–45 % čistého měsíčního příjmu (ukazatel DSTI). Zkontrolujte svou historii splácení v registrech dlužníků (SOLUS, CIBR) a eliminujte zbytečné kreditní karty a kontokorenty — i nevyužitý limit snižuje vaši bonitu v očích banky.',
+    },
+    {
+      title: 'Připravte si doklady',
+      desc: 'Banka bude požadovat: dva průkazy totožnosti, potvrzení o příjmu od zaměstnavatele (nebo daňová přiznání za poslední dva roky u OSVČ), výpisy z bankovního účtu za 3–6 měsíců a doklady k nemovitosti — výpis z katastru, kupní smlouvu nebo smlouvu o smlouvě budoucí. Při refinancování přiložte také výpis o stávajícím úvěru.',
+    },
+    {
+      title: 'Oslovte více bank nebo hypotečního poradce',
+      desc: 'Hypoteční trh je konkurenční — nabídky se liší nejen sazbou, ale i podmínkami čerpání, poplatky a flexibilitou splácení. Hypoteční poradce (zprostředkovatel) osloví banky za vás a jeho odměna jde zpravidla z provize banky, nikoliv z vaší kapsy. Srovnávejte vždy RPSN, ne jen nominální úrokovou sazbu, protože RPSN zahrnuje veškeré náklady.',
+    },
+    {
+      title: 'Získejte předhypoteční příslib',
+      desc: 'Ještě před podpisem kupní smlouvy si nechte vystavit od banky předhypoteční příslib neboli indikativní nabídku. Ta potvrdí, že banka je ochotna vám za daných podmínek úvěr poskytnout. Bez tohoto potvrzení neriskujte zálohu na nemovitost — přišli byste o peníze, pokud by vám hypotéka nebyla schválena.',
+    },
+    {
+      title: 'Nechte ocenit nemovitost',
+      desc: 'Banka si nechá nemovitost ocenit smluvním odhadcem. Zástavní hodnota z odhadu může být nižší než sjednaná kupní cena — a právě od zástavní hodnoty se odvíjí maximální výše úvěru a LTV. S odhadem počítejte zpravidla 5–10 pracovních dní a poplatek kolem 3 000–6 000 Kč v závislosti na druhu a ceně nemovitosti.',
+    },
+    {
+      title: 'Podejte formální žádost a vyčkejte na schválení',
+      desc: 'Po předložení všech dokladů banka provede úvěrovou analýzu. Ověří příjmy, závazky, registry dlužníků a hodnotu zástavy. Schválení trvá obvykle 5–15 pracovních dní. Banka vás může požádat o doplnění dalších podkladů, například potvrzení o pojištění nemovitosti nebo doplňující výpisy z účtu.',
+    },
+    {
+      title: 'Podepište smlouvy a čerpejte hypotéku',
+      desc: 'Po schválení podepíšete úvěrovou smlouvu a zástavní smlouvu. Zástavní právo se zapíše do katastru nemovitostí — banka zpravidla podmíní čerpání zápisem zástavního práva nebo alespoň podáním návrhu na vklad. Samotné čerpání probíhá převodem přímo prodávajícímu nebo do advokátní či notářské úschovy.',
+    },
+    {
+      title: 'Sledujte konec fixace a zvažte refinancování',
+      desc: 'Minimálně 6 měsíců před koncem fixace oslovte svou banku i konkurenci a porovnejte nabídky. Refinancování — přechod k jiné bance za výhodnější sazbu — je po skončení fixace bez jakýchkoli poplatků. Aktivní přístup a ochota vyjednávat nebo přejít ke konkurenci může ušetřit desítky tisíc korun na úrocích.',
+    },
+  ];
+
+  return (
+    <View style={gs.card}>
+      <Text style={gs.h2}>Průvodce žadatele o hypotéku</Text>
+      {steps.map((step, i) => (
+        <View key={i} style={gs.stepRow}>
+          <View style={gs.badge}>
+            <Text style={gs.badgeText}>{i + 1}</Text>
+          </View>
+          <View style={gs.stepBody}>
+            <Text style={gs.stepTitle}>{step.title}</Text>
+            <Text style={gs.stepDesc}>{step.desc}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// ── FAQ section (web only) ────────────────────────────────────────────────────
+function FAQSection({ c }: { c: ThemeColors }) {
+  const gs = StyleSheet.create({
+    card: { backgroundColor: c.surface, borderRadius: 16, padding: 20, marginBottom: 16 },
+    h2: { fontSize: 18, fontWeight: '800', color: c.text, marginBottom: 16, letterSpacing: -0.3 },
+    faqItem: { marginBottom: 4 },
+    question: { fontSize: 14, fontWeight: '700', color: c.text, marginBottom: 6 },
+    answer: { fontSize: 14, lineHeight: 22, color: c.textSecondary, marginBottom: 16 },
+    divider: { height: StyleSheet.hairlineWidth, backgroundColor: c.border, marginBottom: 16 },
+  });
+
+  const faqs = [
+    {
+      q: 'Jaká je průměrná úroková sazba hypotéky v ČR?',
+      a: 'Průměrná úroková sazba nových hypoték v České republice se v roce 2024–2025 pohybuje kolem 4,5–5,5 % ročně. Konkrétní sazba závisí na délce fixace, výši LTV, bonitě žadatele a podmínkách konkrétní banky. Sazby se pravidelně mění v závislosti na měnové politice ČNB a situaci na finančních trzích. Pro nejpřesnější nabídku vždy oslovte banku přímo nebo využijte hypotečního poradce, který srovná více bank najednou.',
+    },
+    {
+      q: 'Co je LTV a jak ovlivňuje mou hypotéku?',
+      a: 'LTV (Loan to Value) je poměr výše úvěru k tržní hodnotě nemovitosti, vyjádřený v procentech. Pokud kupujete nemovitost za 4 000 000 Kč a berete si úvěr 3 000 000 Kč, vaše LTV je 75 %. Nižší LTV znamená nižší riziko pro banku, což se zpravidla projeví nižší úrokovou sazbou. ČNB omezuje hypotéky s LTV nad 80 % a zakazuje hypotéky s LTV nad 90 %. Pro žadatele do 36 let kupující první vlastní bydlení platí mírnější pravidla.',
+    },
+    {
+      q: 'Jak dlouho trvá vyřízení hypotéky?',
+      a: 'Celý proces od podání žádosti po čerpání peněz trvá obvykle 4–8 týdnů. Samotné schválení žádosti bankou trvá 5–15 pracovních dní po předložení kompletní dokumentace. Dalším krokem je příprava smluv a zápis zástavního práva do katastru nemovitostí, který může trvat 2–4 týdny. Celková délka závisí na připravenosti žadatele, vytíženosti banky a katastrálního úřadu a na složitosti konkrétní transakce.',
+    },
+    {
+      q: 'Jaký je minimální vlastní vklad (akontace)?',
+      a: 'Dle regulace ČNB musíte mít minimálně 10 % z hodnoty nemovitosti z vlastních zdrojů, čímž dosáhnete maximálního LTV 90 %. Banky v praxi preferují vlastní vklad 20 % (LTV 80 %) a nabízejí za to výrazně lepší podmínky. Při LTV nad 80 % počítejte s vyšší sazbou a přísnějším hodnocením žádosti. Výjimku tvoří žadatelé do 36 let kupující první bydlení — ti mohou za určitých podmínek dosáhnout na hypotéku s nižší akontací díky speciálnímu limitu ČNB.',
+    },
+    {
+      q: 'Co je fixace úrokové sazby a jak si vybrat její délku?',
+      a: 'Fixace je smluvně garantovaná doba, po kterou se nemění vaše úroková sazba bez ohledu na vývoj trhu. Typicky si volíte mezi 1, 3, 5 nebo 7 lety. Kratší fixace bývá levnější, ale přináší riziko, že po jejím skončení budou sazby vyšší. Delší fixace dává jistotu stejné splátky po delší dobu. V prostředí vysokých sazeb (jako v roce 2023–2024) se vyplatí kratší fixace v naději na refinancování za lepších podmínek po poklesu sazeb.',
+    },
+    {
+      q: 'Jak se liší anuitní a progresivní splácení?',
+      a: 'U anuitního splácení platíte po celou dobu fixace stejnou měsíční splátku — mění se pouze poměr jistiny a úroku (zpočátku platíte více úroků, postupně více jistiny). Jde o nejrozšířenější formu splácení, vhodnou pro většinu žadatelů. Progresivní splácení začíná na nižší splátce, která se každý rok zvyšuje o pevně stanovené procento. Je vhodné pro žadatele, kteří teprve začínají kariéru a očekávají růst příjmů. Celková zaplacená částka bývá u progresivního splácení vyšší.',
+    },
+    {
+      q: 'Mohu hypotéku předčasně splatit?',
+      a: 'Ano, hypotéku lze splatit předčasně, ale podmínky závisí na fázi fixace. Zákon vymezuje případy, kdy lze splatit zdarma: při prodeji zastavené nemovitosti po uplynutí dvou let od uzavření smlouvy, při výročí fixace (obvykle jednou ročně do výše 25 % jistiny), nebo při úmrtí, invaliditě či rozvodu. Mimo tyto případy si banky mohou účtovat poplatek odpovídající skutečně vzniklým nákladům. Po skončení fixačního období lze hypotéku splatit nebo refinancovat zcela bez poplatků.',
+    },
+    {
+      q: 'Co jsou ukazatele DTI a DSTI a proč jsou důležité?',
+      a: 'DTI (Debt-to-Income) je poměr celkové výše všech vašich dluhů k ročnímu čistému příjmu. ČNB doporučuje, aby DTI nepřesáhlo 8,5násobek ročního čistého příjmu (pro žadatele do 36 let 9,5násobek). DSTI (Debt Service-to-Income) vyjadřuje, jaký podíl čistého měsíčního příjmu spotřebujete na splátky všech úvěrů. Doporučená hranice je 45 % (pro žadatele do 36 let 50 %). Banka tyto ukazatele hodnotí při posouzení bonity — příliš vysoké hodnoty vedou k zamítnutí žádosti.',
+    },
+    {
+      q: 'Jaký příjem potřebuji na hypotéku?',
+      a: 'Požadovaný příjem závisí na výši úvěru, délce splácení a úrokové sazbě. Orientačně: aby splátka nepřesáhla 45 % čistého příjmu (limit DSTI), potřebujete čistý měsíční příjem přibližně 2,2× vyšší než je vaše splátka. Například pro hypotéku se splátkou 20 000 Kč byste potřebovali čistý příjem kolem 44 000 Kč měsíčně. Banka hodnotí čistý příjem po daních a odvodech. U OSVČ se vychází z daňových přiznání za poslední 2 roky.',
+    },
+    {
+      q: 'Co se stane po skončení fixace?',
+      a: 'Po uplynutí fixačního období banka nabídne novou úrokovou sazbu na další fixační období. Sazba se změní podle aktuálních tržních podmínek — může být výrazně vyšší i nižší než vaše původní sazba. Banky jsou ze zákona povinny informovat vás o nové sazbě minimálně 3 měsíce před koncem fixace. V tuto chvíli máte plné právo přijmout novou nabídku, vyjednat lepší podmínky nebo refinancovat hypotéku u jiné banky zcela bez sankcí. Nenechávejte rozhodnutí na poslední chvíli.',
+    },
+  ];
+
+  return (
+    <View style={gs.card}>
+      <Text style={gs.h2}>Časté otázky</Text>
+      {faqs.map((faq, i) => (
+        <View key={i} style={gs.faqItem}>
+          <Text style={gs.question}>{faq.q}</Text>
+          <Text style={gs.answer}>{faq.a}</Text>
+          {i < faqs.length - 1 && <View style={gs.divider} />}
+        </View>
+      ))}
     </View>
   );
 }
