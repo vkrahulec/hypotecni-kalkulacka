@@ -576,8 +576,8 @@ export function CalculatorScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Ad banner fixed at bottom */}
-      <AdBanner />
+      {/* Ad banner fixed at bottom (Android only) */}
+      {Platform.OS !== 'web' && <AdBanner />}
     </SafeAreaView>
   );
 }
